@@ -1,0 +1,33 @@
+applications:
+- neutron
+parameters:
+  neutron:
+    switch:
+      enabled: true
+      version: icehouse
+      mtu: 1500
+      tunnel_type: gre
+      bind:
+        address: ${linux:network:host:local:address}
+      database:
+        engine: mysql
+        host: ${linux:network:host:vip:address}
+        port: 3306
+        name: neutron
+        user: neutron
+        password: ${_secret:mysql_neutron_password}
+      identity:
+        engine: keystone
+        host: ${linux:network:host:vip:address}
+        port: 35357
+        user: neutron
+        password: ${_secret:keystone_neutron_password}
+        tenant: service
+      message_queue:
+        engine: rabbitmq
+        host: ${linux:network:host:vip:address}
+        port: 5672
+        user: openstack
+        password: ${_secret:rabbitmq_openstack_password}
+        virtual_host: '/openstack'
+        ha_queues: true

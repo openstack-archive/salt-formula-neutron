@@ -1,0 +1,34 @@
+applications:
+- neutron
+parameters:
+  neutron:
+    server:
+      enabled: true
+      plugin: ml2
+      fwaas: false
+      tunnel_type: vxlan
+      version: ${_param:neutron_version}
+      bind:
+        address: ${_param:single_address}
+        port: 9696
+      database:
+        engine: mysql
+        host: ${_param:single_address}
+        port: 3306
+        name: neutron
+        user: neutron
+        password: ${_param:mysql_neutron_password}
+      identity:
+        engine: keystone
+        host: ${_param:single_address}
+        port: 35357
+        user: neutron
+        password: ${_param:keystone_neutron_password}
+        tenant: service
+      message_queue:
+        engine: rabbitmq
+        host: ${_param:single_address}
+        port: 5672
+        user: openstack
+        password: ${_param:rabbitmq_openstack_password}
+        virtual_host: '/openstack'

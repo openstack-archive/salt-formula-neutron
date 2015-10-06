@@ -1,0 +1,15 @@
+Source: salt-formula-neutron
+Maintainer: Jakub Pavlik <jakub.pavlik@tcpcloud.eu>
+Section: admin
+Priority: optional
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: http://www.tcpcloud.eu
+Vcs-Browser: https://github.com/tcpcloud/salt-formula-neutron
+Vcs-Git: https://github.com/tcpcloud/salt-formula-neutron.git
+
+Package: salt-formula-neutron
+Architecture: all
+Depends: ${misc:Depends}, salt-master, reclass
+Description: Neutron Salt formula
+ Install and configure Neutron server and client.

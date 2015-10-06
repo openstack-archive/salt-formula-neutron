@@ -1,0 +1,39 @@
+{%- if pillar.neutron.server is defined %}
+{%- set neutron = pillar.neutron.server %}
+{%- elif pillar.neutron.switch is defined %}
+{%- set neutron = pillar.neutron.switch %}
+{%- elif pillar.neutron.bridge is defined %}
+{%- set neutron = pillar.neutron.bridge %}
+{%- endif %}
+[composite:neutron]
+use = egg:Paste#urlmap
+/: neutronversions
+/v2.0: neutronapi_v2_0
+
+[composite:neutronapi_v2_0]
+use = call:neutron.auth:pipeline_factory
+noauth = extensions neutronapiapp_v2_0
+keystone = authtoken keystonecontext extensions neutronapiapp_v2_0
+
+[filter:keystonecontext]
+paste.filter_factory = neutron.auth:NeutronKeystoneContext.factory
+
+[filter:authtoken]
+paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+auth_port={{ neutron.identity.port }}
+auth_protocol=http
+auth_url=http://{{ neutron.identity.host }}:{{ neutron.identity.port }}/v2.0
+auth_host={{ neutron.identity.host }}
+admin_tenant_name = {{ neutron.identity.tenant }}
+admin_user = {{ neutron.identity.user }}
+admin_password = {{ neutron.identity.password }}
+signing_dir = /var/lib/neutron/keystone-signing
+
+[filter:extensions]
+paste.filter_factory = neutron.api.extensions:plugin_aware_extension_middleware_factory
+
+[app:neutronversions]
+paste.app_factory = neutron.api.versions:Versions.factory
+
+[app:neutronapiapp_v2_0]
+paste.app_factory = neutron.api.v2.router:APIRouter.factory
