@@ -339,19 +339,24 @@ allow_overlapping_ips = True
 # ======== neutron nova interactions ==========
 # Send notification to nova when port status is active.
 # notify_nova_on_port_status_changes = True
+notify_nova_on_port_status_changes = True
 
 # Send notifications to nova when port data (fixed_ips/floatingips) change
 # so nova can update it's cache.
 # notify_nova_on_port_data_changes = True
+notify_nova_on_port_data_changes = True
 
 # URL for connection to nova (Only supports one nova region currently).
 # nova_url = http://127.0.0.1:8774/v2
+nova_url = http://{{ neutron.compute.host }}:8774/v2
 
 # Name of nova region to use. Useful if keystone manages more than one region
 # nova_region_name =
+nova_region_name = RegionOne
 
 # Username for connection to nova in admin context
 # nova_admin_username =
+nova_admin_username = {{ neutron.compute.user }}
 
 # The uuid of the admin nova tenant
 # nova_admin_tenant_id =
@@ -360,12 +365,15 @@ allow_overlapping_ips = True
 # is set, this is optional.  Useful for cases where the uuid of the admin
 # nova tenant is not available when configuration is being done.
 # nova_admin_tenant_name =
+nova_admin_tenant_name = {{ neutron.compute.tenant }}
 
 # Password for connection to nova in admin context.
 # nova_admin_password =
+nova_admin_password = {{ neutron.compute.password }}
 
 # Authorization URL for connection to nova in admin context.
 # nova_admin_auth_url =
+nova_admin_auth_url = http://{{ neutron.identity.host }}:35357
 
 # CA file for novaclient to verify server certificates
 # nova_ca_certificates_file =
@@ -375,6 +383,7 @@ allow_overlapping_ips = True
 
 # Number of seconds between sending events to nova if there are any events to send
 # send_events_interval = 2
+send_events_interval = 2
 
 # ======== end of neutron nova interactions ==========
 
