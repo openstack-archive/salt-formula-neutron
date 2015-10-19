@@ -772,6 +772,7 @@ connection = sqlite:////var/lib/neutron/neutron.sqlite
 [nova]
 # Name of the plugin to load
 # auth_plugin =
+auth_plugin = password
 
 # Config Section from which to load plugin specific options
 # auth_section =
