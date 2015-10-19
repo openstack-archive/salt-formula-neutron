@@ -32,3 +32,8 @@ parameters:
         password: ${_param:rabbitmq_openstack_password}
         virtual_host: '/openstack'
         ha_queues: true
+      compute:
+        host: ${_param:cluster_vip_address}
+        user: nova
+        password: ${_param:keystone_nova_password}
+        tenant: service
