@@ -74,7 +74,9 @@ api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin
 #
 # service_plugins =
 # Example: service_plugins = router,firewall,lbaas,vpnaas,metering
-service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
+
+# JPAVLIK TEMPRORARY DISABLE LbaaS until Contrail fix it
+#service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
 
 # Paste configuration file
 # api_paste_config = api-paste.ini
@@ -344,7 +346,8 @@ notify_nova_on_port_status_changes = True
 # Send notifications to nova when port data (fixed_ips/floatingips) change
 # so nova can update it's cache.
 # notify_nova_on_port_data_changes = True
-notify_nova_on_port_data_changes = True
+# TEMPORARY BUG - cannot associate floating ips with notification port True. OpenStack Bug 
+notify_nova_on_port_data_changes = False
 
 # URL for connection to nova (Only supports one nova region currently).
 # nova_url = http://127.0.0.1:8774/v2
