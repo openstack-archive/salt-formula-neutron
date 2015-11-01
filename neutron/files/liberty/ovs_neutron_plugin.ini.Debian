@@ -1,0 +1,42 @@
+{%- set neutron = pillar.neutron.network %}
+[ml2]
+type_drivers = flat,vlan,gre,vxlan
+tenant_network_types = {{ neutron.tunnel_type  }}
+mechanism_drivers = openvswitch{%- if neutron.distributed %},l2population{%- endif %}
+
+[ml2_type_flat]
+#flat_networks = external
+
+[ml2_type_vlan]
+network_vlan_ranges = external:100:199
+
+[ml2_type_gre]
+tunnel_id_ranges = 32769:34000
+
+[ml2_type_vxlan]
+vni_ranges = 65537:69999
+
+[securitygroup]
+firewall_driver = neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
+enable_security_group = True
+enable_ipset = True
+
+[ovs]
+local_ip = {{ pillar.neutron.server.bind.address }}
+tenant_network_type = {{ neutron.tunnel_type }}
+tunnel_id_ranges = {%- if neutron.tunnel_type == 'gre' %} 32769:34000 {%- else %} 65537:69999 {%- endif %}
+enable_tunneling = True
+integration_bridge = br-int
+tunnel_bridge = br-tun
+bridge_mappings = external:br-ex
+[agent]
+tunnel_types = {{ neutron.tunnel_type }}
+root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+{%- if neutron.distributed %}
+l2_population = True
+enable_distributed_routing = True
+{%- endif %}
+
+[database]
+connection = {{ pillar.neutron.server.database.engine }}://{{ pillar.neutron.server.database.user }}:{{ pillar.neutron.server.database.password }}@{{ pillar.neutron.server.database.host }}/{{ pillar.neutron.server.database.name }}

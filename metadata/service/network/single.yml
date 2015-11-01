@@ -2,7 +2,7 @@ applications:
 - neutron
 parameters:
   neutron:
-    bridge:
+    network:
       enabled: true
       version: icehouse
       migration: true

@@ -1,0 +1,67 @@
+{%- from "neutron/map.jinja" import server with context %}
+[DEFAULT]
+verbose = True
+debug = True
+agent_down_time = 75
+lock_path = $state_path/lock
+notification_driver = neutron.openstack.common.notifier.rpc_notifier
+allow_overlapping_ips = True
+allow_automatic_l3agent_failover = True
+
+{%- if pillar.neutron.server.distributed %}
+router_distributed = True
+{%- endif %}
+
+auth_strategy = keystone
+
+bind_host = {{ server.bind.address }}
+bind_port = {{ server.bind.port }}
+allow_overlapping_ips = True
+
+#RabbitMQ
+rpc_backend = neutron.openstack.common.rpc.impl_kombu
+rabbit_host = {{ server.message_queue.host }}
+rabbit_port = {{ server.message_queue.port }}
+rabbit_userid = {{ server.message_queue.user }}
+rabbit_password = {{ server.message_queue.password }}
+rabbit_virtual_host = {{ server.message_queue.virtual_host }}
+
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+
+#Nova parameters
+nova_url = http://{{ pillar.nova.controller.identity.host }}:8774/v2
+nova_admin_username ={{ pillar.nova.controller.identity.user }}
+nova_admin_tenant_name = {{ pillar.nova.controller.identity.tenant }}
+nova_admin_password ={{ pillar.nova.controller.identity.password }}
+nova_admin_auth_url =http://{{ pillar.nova.controller.identity.host }}:{{ pillar.nova.controller.identity.port }}/v2.0
+
+#Plugins
+core_plugin = ml2
+
+{% if pillar.neutron.server.tunnel_type != 'flat' %}
+service_plugins = router
+{% endif %}
+
+[quotas]
+
+[agent]
+report_interval = 5
+root_helper=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+
+[keystone_authtoken]
+auth_host = {{ server.identity.host }}
+auth_port = {{ server.identity.port }}
+auth_protocol = http
+admin_tenant_name = {{ server.identity.tenant }}
+admin_user = {{ server.identity.user }}
+admin_password = {{ server.identity.password }}
+signing_dir = $state_path/keystone-signing
+auth_uri = http://{{ server.identity.host }}:5000
+
+[database]
+connection = {{ server.database.engine }}://{{ server.database.user }}:{{ server.database.password }}@{{ server.database.host }}/{{ server.database.name }}
+
+[service_providers]
+service_provider=VPN:openswan:neutron.services.vpn.service_drivers.ipsec.IPsecVPNDriver:default

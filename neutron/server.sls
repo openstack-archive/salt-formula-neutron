@@ -5,6 +5,64 @@ neutron_server_packages:
   pkg.installed:
   - names: {{ server.pkgs }}
 
+{% if server.plugin != "contrail" %}
+
+/etc/neutron/neutron.conf:
+  file.managed:
+  - source: salt://neutron/files/{{ pillar.neutron.server.version }}/neutron-server.conf.{{ grains.os_family }}
+  - template: jinja
+  - require:
+    - pkg: neutron_server_packages
+    {%- if server.plugin == "ml2" %}
+    - pkg: neutron_server_ml2_package
+    {%- endif %}
+
+/etc/neutron/api-paste.ini:
+  file.managed:
+  - source: salt://neutron/files/{{ pillar.neutron.server.version }}/api-paste.ini.{{ grains.os_family }}
+  - template: jinja
+  - require:
+    - pkg: neutron_server_packages
+
+/etc/neutron/init.sh:
+  file.managed:
+  - source: salt://neutron/files/init.sh
+  - template: jinja
+  - mode: 700
+  - user: root
+  - group: root
+  - require:
+    - pkg: neutron_server_packages
+
+neutron_syncdb:
+  cmd.run:
+  - name: neutron-db-manage --config-file=/etc/neutron/neutron.conf upgrade head
+  - require:
+    - file: /etc/neutron/neutron.conf
+
+{%- endif %}
+
+{% if server.plugin == "ml2" %}
+
+neutron_server_ml2_package:
+  pkg.installed:
+  - names: {{ server.pkgs_ml2 }}
+
+/etc/neutron/plugins/ml2/ml2_conf.ini:
+  file.managed:
+  - source: salt://neutron/files/{{ pillar.neutron.server.version }}/ml2_conf.ini.{{ grains.os_family }}
+  - template: jinja
+  - require:
+    - pkg: neutron_server_packages
+
+/etc/neutron/plugin.ini:
+  file.symlink:
+    - target: /etc/neutron/plugins/ml2/ml2_conf.ini
+    - require:
+      - file: /etc/neutron/plugins/ml2/ml2_conf.ini
+
+{%- endif %}
+
 {% if server.plugin == "contrail" %}
 
 /etc/neutron/neutron.conf:
