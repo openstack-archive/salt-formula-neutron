@@ -1,9 +1,9 @@
 {%- if pillar.neutron.server is defined %}
 {%- set neutron = pillar.neutron.server %}
-{%- elif pillar.neutron.switch is defined %}
-{%- set neutron = pillar.neutron.switch %}
-{%- elif pillar.neutron.bridge is defined %}
-{%- set neutron = pillar.neutron.bridge %}
+{%- elif pillar.neutron.compute is defined %}
+{%- set neutron = pillar.neutron.compute %}
+{%- elif pillar.neutron.network is defined %}
+{%- set neutron = pillar.neutron.network %}
 {%- endif %}
 [composite:neutron]
 use = egg:Paste#urlmap

@@ -2,10 +2,9 @@ applications:
 - neutron
 parameters:
   neutron:
-    bridge:
+    network:
       enabled: true
       version: icehouse
-      migration: true
       mtu: 1500
       bind:
         address: ${linux:network:host:local:address}

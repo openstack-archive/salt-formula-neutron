@@ -1,29 +1,29 @@
-
 {% set compute = salt['grains.filter_by']({
     'Debian': {
         'pkgs': ['neutron-plugin-openvswitch-agent', 'openvswitch-switch', 'openvswitch-datapath-dkms'],
-        'services': ['openvswitch-switch', 'neutron-plugin-openvswitch-agent']
+        'pkgs_ml2': ['neutron-plugin-ml2'],
+        'pkgs_dvr': ['neutron-l3-agent', 'neutron-metadata-agent'],
+        'services': ['openvswitch-switch', 'neutron-plugin-openvswitch-agent'],
+        'services_dvr': ['neutron-l3-agent', 'neutron-metadata-agent']
     },
     'RedHat': {
-        'pkgs': ['openstack-neutron-openvswitch', 'openvswitch', 'fuel-utils'],
+        'pkgs': ['openstack-neutron-openvswitch', 'openvswitch'],
         'services': ['openvswitch', 'neutron-openvswitch-agent']
     },
 }, merge=salt['pillar.get']('neutron:compute')) %}
 
-{% set bridge = salt['grains.filter_by']({
+{% set network = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ['neutron-dhcp-agent', 'neutron-plugin-openvswitch-agent', 'neutron-l3-agent', 'openvswitch-common'],
+        'pkgs': ['neutron-dhcp-agent', 'neutron-plugin-openvswitch-agent', 'neutron-l3-agent', 'neutron-metadata-agent', 'openvswitch-common'],
+        'pkgs_ml2': ['neutron-plugin-ml2'],
         'precise_pkgs': ['openvswitch-datapath-lts-saucy-dkms'],
-        'migration': False,
         'services': ['neutron-plugin-openvswitch-agent', 'neutron-metadata-agent', 'neutron-l3-agent', 'neutron-dhcp-agent']
     },
     'RedHat': {
         'pkgs': ['openstack-neutron-openvswitch'],
-        'migration': False,
-        'migration_pkgs': ['fuel-utils',],
         'services': ['neutron-openvswitch-agent', 'neutron-metadata-agent', 'neutron-l3-agent', 'neutron-dhcp-agent']
     },
-}, merge=salt['pillar.get']('neutron:bridge')) %}
+}, merge=salt['pillar.get']('neutron:network')) %}
 
 {% set server = salt['grains.filter_by']({
     'Debian': {

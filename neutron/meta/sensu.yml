@@ -5,3 +5,44 @@ check:
     occurrences: 1
     subscribers:
     - local-neutron-server
+  local_ovs_switch_proc:
+    command: "PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins check_procs -a ovs-vswitchd -u root -c 1:3"
+    interval: 60
+    occurrences: 1
+    subscribers:
+    - local-neutron-compute
+    - local-neutron-network
+  local_ovs_server_proc:
+    command: "PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins check_procs -a ovsdb-server -u root -c 1:2"
+    interval: 60
+    occurrences: 1
+    subscribers:
+    - local-neutron-compute
+    - local-neutron-network
+  local_neutron_ovs_proc:
+    command: "PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins check_procs -C neutron-openvsw -u neutron -c 1:1"
+    interval: 60
+    occurrences: 1
+    subscribers:
+    - local-neutron-compute
+    - local-neutron-network
+  local_neutron_metadat_proc:
+    command: "PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins check_procs -C neutron-metadat -u neutron -c 1:100"
+    interval: 60
+    occurrences: 1
+    subscribers:
+    - local-neutron-compute
+    - local-neutron-network
+  local_neutron_dhcp_proc:
+    command: "PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins check_procs -C neutron-dhcp-ag -u neutron -c 1:1"
+    interval: 60
+    occurrences: 1
+    subscribers:
+    - local-neutron-network
+  local_neutron_l3_proc:
+    command: "PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins check_procs -C neutron-l3-agen -u neutron -c 1:1"
+    interval: 60
+    occurrences: 1
+    subscribers:
+    - local-neutron-compute
+    - local-neutron-network
