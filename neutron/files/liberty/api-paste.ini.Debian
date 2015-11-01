@@ -1,9 +1,9 @@
 {%- if pillar.neutron.server is defined %}
 {%- set neutron = pillar.neutron.server %}
-{%- elif pillar.neutron.switch is defined %}
-{%- set neutron = pillar.neutron.switch %}
-{%- elif pillar.neutron.bridge is defined %}
-{%- set neutron = pillar.neutron.bridge %}
+{%- elif pillar.neutron.compute is defined %}
+{%- set neutron = pillar.neutron.compute %}
+{%- elif pillar.neutron.network is defined %}
+{%- set neutron = pillar.neutron.network %}
 {%- endif %}
 [composite:neutron]
 use = egg:Paste#urlmap
@@ -16,10 +16,10 @@ noauth = request_id catch_errors extensions neutronapiapp_v2_0
 keystone = request_id catch_errors authtoken keystonecontext extensions neutronapiapp_v2_0
 
 [filter:request_id]
-paste.filter_factory = oslo_middleware:RequestId.factory
+paste.filter_factory = oslo.middleware:RequestId.factory
 
 [filter:catch_errors]
-paste.filter_factory = oslo_middleware:CatchErrors.factory
+paste.filter_factory = oslo.middleware:CatchErrors.factory
 
 [filter:keystonecontext]
 paste.filter_factory = neutron.auth:NeutronKeystoneContext.factory
@@ -33,6 +33,7 @@ auth_host={{ neutron.identity.host }}
 admin_tenant_name = {{ neutron.identity.tenant }}
 admin_user = {{ neutron.identity.user }}
 admin_password = {{ neutron.identity.password }}
+signing_dir = /var/lib/neutron/keystone-signing
 
 [filter:extensions]
 paste.filter_factory = neutron.api.extensions:plugin_aware_extension_middleware_factory

@@ -2,7 +2,7 @@ applications:
 - neutron
 parameters:
   neutron:
-    switch:
+    compute:
       enabled: true
       version: icehouse
       mtu: 1500
@@ -23,6 +23,10 @@ parameters:
         user: neutron
         password: ${_secret:keystone_neutron_password}
         tenant: service
+      metadata:
+        host: ${linux:network:host:vip:address}
+        port: 8775
+        password: metadataPass
       message_queue:
         engine: rabbitmq
         host: ${linux:network:host:vip:address}

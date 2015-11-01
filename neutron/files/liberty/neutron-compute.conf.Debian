@@ -1,0 +1,57 @@
+{%- from "neutron/map.jinja" import compute with context %}
+[DEFAULT]
+verbose = True
+debug = True
+agent_down_time = 75
+lock_path = $state_path/lock
+notification_driver = neutron.openstack.common.notifier.rpc_notifier
+
+{%- if compute.distributed %}
+router_distributed = True
+{%- endif %}
+
+auth_strategy = keystone
+
+#RabbitMQ
+rabbit_host = {{ compute.message_queue.host }}
+rabbit_port = {{ compute.message_queue.port }}
+rabbit_userid = {{ compute.message_queue.user }}
+rabbit_password = {{ compute.message_queue.password }}
+rabbit_virtual_host = {{ compute.message_queue.virtual_host }}
+
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+
+#Nova
+nova_url = http://{{ pillar.nova.compute.identity.host }}:8774/v2
+nova_admin_username ={{ pillar.nova.compute.identity.user }}
+nova_admin_tenant_name = {{ pillar.nova.compute.identity.tenant }}
+nova_admin_password ={{ pillar.nova.compute.identity.password }}
+nova_admin_auth_url =http://{{ pillar.nova.compute.identity.host }}:{{ pillar.nova.compute.identity.port }}/v2.0
+
+#Plugins
+core_plugin = ml2
+service_plugins = router
+
+[quotas]
+
+[agent]
+report_interval = 5
+root_helper=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
+
+
+[keystone_authtoken]
+signing_dir = $state_path/keystone-signing
+auth_uri=http://{{ compute.identity.host }}:5000
+auth_host = {{ compute.identity.host }}
+auth_port = {{ compute.identity.port }}
+auth_protocol = http
+admin_tenant_name = {{ compute.identity.tenant }}
+admin_user = {{ compute.identity.user }}
+admin_password = {{ compute.identity.password }}
+
+[database]
+connection = {{ compute.database.engine }}://{{ compute.database.user }}:{{ compute.database.password }}@{{ compute.database.host }}/{{ compute.database.name }}
+
+[service_providers]
+service_provider=VPN:openswan:neutron.services.vpn.service_drivers.ipsec.IPsecVPNDriver:default

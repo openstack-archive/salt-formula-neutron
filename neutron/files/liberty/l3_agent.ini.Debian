@@ -1,0 +1,36 @@
+{%- if pillar.neutron.server is defined %}
+{%- set neutron = pillar.neutron.server %}
+{%- elif pillar.neutron.compute is defined %}
+{%- set neutron = pillar.neutron.compute %}
+{%- elif pillar.neutron.network is defined %}
+{%- set neutron = pillar.neutron.network %}
+{%- endif %}
+[DEFAULT]
+debug = False
+resync_interval = 30
+interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
+dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+gateway_external_network_id =
+external_network_bridge =
+router_delete_namespaces = True
+use_namespaces = True
+state_path=/var/lib/neutron
+admin_user = {{ neutron.identity.user }}
+admin_password = {{ neutron.identity.password }}
+admin_tenant_name = {{ neutron.identity.tenant }}
+auth_url=http://{{ neutron.identity.host }}:{{ neutron.identity.port }}/v2.0
+verbose=true
+metadata_ip=169.254.169.254
+metadata_port=8775
+
+ovs_use_veth = false
+
+{%- if neutron.distributed %}
+{%- if pillar.neutron.network is defined %}
+agent_mode = dvr_snat
+{%- elif pillar.neutron.compute is defined %}
+agent_mode = dvr
+{%- endif %}
+{%- endif %}
+[AGENT]
+root_helper=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf

@@ -9,19 +9,19 @@ Starting in the Folsom release, Neutron is a core and supported part of the Open
 Usage notes
 ===========
 
-For live migration to work, you have to set migration param on bridge and switch nodes.
+For live migration to work, you have to set migration param on network and compute nodes.
 
 .. code-block:: yaml
 
     neutron:
-      bridge:
+      network:
         enabled: true
         migration: true
 
 .. code-block:: yaml
 
     neutron:
-      switch:
+      compute:
         enabled: true
         migration: true
 
@@ -79,12 +79,12 @@ Neutron Server on the controller node
           password: pass
         fwaas: false
 
-Neutron bridge on the network node
+Neutron network on the network node
 
 .. code-block:: yaml
 
     neutron:
-      bridge:
+      network:
         enabled: true
         version: havana
         tunnel_type: vxlan
@@ -112,12 +112,12 @@ Neutron bridge on the network node
           password: pwd
           virtual_host: '/openstack'
 
-Neutron switch on the compute node with live migration turned on
+Neutron compute on the compute node with live migration turned on
 
 .. code-block:: yaml
 
     neutron:
-      switch:
+      compute:
         enabled: true
         version: havana
         migration: True
@@ -161,6 +161,142 @@ Neutron Keystone region
         compute:
           region: RegionTwo
         ...
+
+Neutron with DVR
+================
+
+Things done by hand:
+
+1. Add br-ex to all network and compute nodes
+ovs-vsctl add-br br-ex
+
+2. Connect it to the external network
+ovs-vsctl add-port br-ex INTERFACE_NAME
+
+3. Increase MTU on all physical nodes.
+
+Pillar for controller:
+
+.. code-block:: yaml
+
+neutron:
+  server:
+    enabled: true
+    plugin: ml2
+    tunnel_type: gre
+    distributed: true
+    fwaas: false
+    dns_domain: novalocal
+    version: kilo
+    bind:
+      address: 127.0.0.1
+      port: 9696
+    database:
+      engine: mysql
+      host: 127.0.0.1
+      port: 3306
+      name: neutron
+      user: neutron
+      password: password
+    identity:
+      engine: keystone
+      region: RegionOne
+      host: 127.0.0.1
+      port: 35357
+      user: neutron
+      password: password
+      tenant: service
+    message_queue:
+      engine: rabbitmq
+      host: 127.0.0.1
+      port: 5672
+      user: openstack
+      password: password
+      virtual_host: '/openstack'
+      ha_queues: true
+    compute:
+      host: 127.0.0.1
+      region: RegionOne
+      user: nova
+      password: password
+      tenant: service
+
+
+
+For network node (may be co-located with controller):
+
+.. code-block:: yaml
+
+neutron:
+  network:
+    enabled: true
+    version: kilo
+    tunnel_type: gre
+    migration: true
+    mtu: 1500
+    distributed: true
+    bind:
+      address: 127.0.0.1
+    metadata:
+      host: 127.0.0.1
+      port: 8775
+      password: metadataPass
+    identity:
+      engine: keystone
+      host: 127.0.0.1
+      port: 35357
+      user: neutron
+      password: password
+      tenant: service
+    message_queue:
+      engine: rabbitmq
+      host: 127.0.0.1
+      port: 5672
+      user: openstack
+      password: password
+      virtual_host: '/openstack'
+
+
+And for compute node:
+
+.. code-block:: yaml
+
+neutron:
+  compute:
+    enabled: true
+    migration: true
+    version: kilo
+    mtu: 1500
+    tunnel_type: gre
+    distributed: true
+    bind:
+      address: 127.0.0.1
+    database:
+      engine: mysql
+      host: 127.0.0.1
+      port: 3306
+      name: neutron
+      user: neutron
+      password: password
+    identity:
+      engine: keystone
+      host: 127.0.0.1
+      port: 35357
+      user: neutron
+      password: password
+      tenant: service
+    metadata:
+      host: 127.0.0.1
+      port: 8775
+      password: metadataPass
+    message_queue:
+      engine: rabbitmq
+      host: 127.0.0.1
+      port: 5672
+      user: openstack
+      password: password
+      virtual_host: '/openstack'
+
 
 Usage
 =====
