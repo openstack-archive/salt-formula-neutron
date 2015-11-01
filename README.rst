@@ -9,19 +9,19 @@ Starting in the Folsom release, Neutron is a core and supported part of the Open
 Usage notes
 ===========
 
-For live migration to work, you have to set migration param on bridge and switch nodes.
+For live migration to work, you have to set migration param on network and compute nodes.
 
 .. code-block:: yaml
 
     neutron:
-      bridge:
+      network:
         enabled: true
         migration: true
 
 .. code-block:: yaml
 
     neutron:
-      switch:
+      compute:
         enabled: true
         migration: true
 
@@ -79,12 +79,12 @@ Neutron Server on the controller node
           password: pass
         fwaas: false
 
-Neutron bridge on the network node
+Neutron network on the network node
 
 .. code-block:: yaml
 
     neutron:
-      bridge:
+      network:
         enabled: true
         version: havana
         tunnel_type: vxlan
@@ -112,12 +112,12 @@ Neutron bridge on the network node
           password: pwd
           virtual_host: '/openstack'
 
-Neutron switch on the compute node with live migration turned on
+Neutron compute on the compute node with live migration turned on
 
 .. code-block:: yaml
 
     neutron:
-      switch:
+      compute:
         enabled: true
         version: havana
         migration: True

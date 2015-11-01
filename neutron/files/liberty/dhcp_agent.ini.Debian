@@ -1,0 +1,27 @@
+{%- if pillar.neutron.server is defined %}
+{%- set neutron = pillar.neutron.server %}
+{%- elif pillar.neutron.compute is defined %}
+{%- set neutron = pillar.neutron.compute %}
+{%- elif pillar.neutron.network is defined %}
+{%- set neutron = pillar.neutron.network %}
+{%- endif %}
+[DEFAULT]
+debug = False
+resync_interval = 30
+interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
+dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
+external_network_bridge = br-ex
+use_namespaces = True
+dhcp_delete_namespaces = True
+enable_isolated_metadata = True
+enable_metadata_network = True
+state_path=/var/lib/neutron
+dnsmasq_config_file = /etc/neutron/dnsmasq-neutron.conf
+admin_user = {{ neutron.identity.user }}
+admin_password = {{ neutron.identity.password }}
+signing_dir=/var/lib/neutron/keystone-signing
+admin_tenant_name = {{ neutron.identity.tenant }}
+auth_url=http://{{ neutron.identity.host }}:{{ neutron.identity.port }}/v2.0
+verbose=true
+[AGENT]
+root_helper=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
