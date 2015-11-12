@@ -119,6 +119,8 @@ auth_strategy = keystone
 # Allow sending resource operation notification to DHCP agent
 # dhcp_agent_notification = True
 
+dns_domain = {{ neutron.dns_domain }}
+
 # Enable or disable bulk create/update/delete operations
 # allow_bulk = True
 # Enable or disable pagination

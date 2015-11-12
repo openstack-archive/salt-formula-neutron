@@ -6,6 +6,7 @@ parameters:
       enabled: true
       plugin: ml2
       fwaas: false
+      dns_domain: novalocal
       tunnel_type: vxlan
       version: ${_param:neutron_version}
       bind:
