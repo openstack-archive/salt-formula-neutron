@@ -162,6 +162,25 @@ Neutron Keystone region
           region: RegionTwo
         ...
 
+User Quotas:
+============
+
+.. code-block:: yaml
+
+  neutron:
+    server:
+      quota:
+        engine: database
+        default:
+          network: 5
+          subnet: 5
+          port: 20
+          router: 5
+          floatingip: 1
+
+This will allow the administrator to change quotas per project.
+If "engine: config" is specified, all projects have the same quota.
+
 Usage
 =====
 

@@ -13,6 +13,8 @@ parameters:
       bind:
         address: ${_param:cluster_local_address}
         port: 9696
+      quota:
+        engine: none
       database:
         engine: mysql
         host: ${_param:cluster_vip_address}
