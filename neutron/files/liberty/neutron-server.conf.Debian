@@ -43,12 +43,45 @@ core_plugin = ml2
 service_plugins = router
 {% endif %}
 
+{%- if pillar.neutron.server.quota.engine != 'none' %}
 [quotas]
+
+# resource name(s) that are supported in quota features
+quota_items = network,subnet,port
+
+# number of networks allowed per tenant, and minus means unlimited
+quota_network = {{ server.quota.default.network }}
+
+# number of subnets allowed per tenant, and minus means unlimited
+quota_subnet = {{ server.quota.default.subnet }}
+
+# number of ports allowed per tenant, and minus means unlimited
+quota_port = {{ server.quota.default.port }}
+
+# number of routers allowed per tenant, and minus means unlimited
+quota_router = {{ server.quota.default.router }}
+
+# number of floating IPs allowed per tenant, and minus means unlimited
+quota_floatingip = {{ server.quota.default.floatingip }}
+
+# default driver to use for quota checks
+
+{%- if pillar.neutron.server.quota.engine == 'database' %}
+
+quota_driver = neutron.db.quota_db.DbQuotaDriver
+
+{%- endif %}
+
+{%- if pillar.neutron.server.quota.engine == 'config' %}
+
+quota_driver = neutron.quota.ConfDriver
+
+{%- endif %}
+{%- endif %}
 
 [agent]
 report_interval = 5
 root_helper=sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
-
 
 [keystone_authtoken]
 auth_host = {{ server.identity.host }}
