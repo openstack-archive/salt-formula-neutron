@@ -1,6 +1,7 @@
 neutron:
   server:
     enabled: true
+    plugin: opencontrail
     fwaas: false
     dns_domain: novalocal
     tunnel_type: vxlan
