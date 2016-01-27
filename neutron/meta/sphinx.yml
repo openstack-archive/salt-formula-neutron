@@ -28,7 +28,7 @@ doc:
           value: {{ server.message_queue.user }}@{{ server.message_queue.host }}:{{ server.message_queue.port }}{{ server.message_queue.virtual_host }}
         compute_host:
           name: "Compute service"
-          value: {{ server.copmute.user }}@{{ server.compute.host }}
+          value: {{ server.compute.user }}@{{ server.compute.host }}
         identity_host:
           name: "Identity service"
           value: {{ server.identity.user }}@{{ server.identity.host }}:{{ server.identity.port }}
