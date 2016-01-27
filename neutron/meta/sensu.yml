@@ -1,0 +1,7 @@
+check:
+  local_neutron_server_proc:
+    command: "PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins check_procs -C neutron-server -u neutron -c 1:30"
+    interval: 60
+    occurrences: 1
+    subscribers:
+    - local-neutron-server
