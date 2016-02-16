@@ -41,6 +41,8 @@ neutron_server_service:
   - watch:
     - file: /etc/neutron/neutron.conf
 
+{%- if grains.os_family == "Debian" %}
+
 /etc/default/neutron-server:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/neutron-server
@@ -49,6 +51,8 @@ neutron_server_service:
     - pkg: neutron_server_packages
   - watch_in:
     - service: neutron_server_services
+
+{%- endif %}
 
 {%- endif %}
 
