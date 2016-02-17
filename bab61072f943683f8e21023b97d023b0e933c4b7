@@ -1,0 +1,8 @@
+Code-Review+2: Filip Pytloun <filip@pytloun.cz>
+Workflow+1: Filip Pytloun <filip@pytloun.cz>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Wed, 17 Feb 2016 08:04:46 +0000
+Reviewed-on: https://review.openstack.org/280972
+Project: openstack/salt-formula-neutron
+Branch: refs/heads/master
