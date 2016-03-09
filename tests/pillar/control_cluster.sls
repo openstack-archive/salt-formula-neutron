@@ -18,6 +18,7 @@ neutron:
       password: password
     identity:
       engine: keystone
+      region: RegionOne
       host: 127.0.0.1
       port: 35357
       user: neutron
@@ -33,6 +34,7 @@ neutron:
       ha_queues: true
     compute:
       host: 127.0.0.1
+      region: RegionOne
       user: nova
       password: password
       tenant: service

@@ -23,6 +23,7 @@ parameters:
         password: ${_param:mysql_neutron_password}
       identity:
         engine: keystone
+        region: RegionOne
         host: ${_param:single_address}
         port: 35357
         user: neutron
@@ -37,6 +38,7 @@ parameters:
         virtual_host: '/openstack'
       compute:
         host: ${_param:single_address}
+        region: RegionOne
         user: nova
         password: ${_param:keystone_nova_password}
         tenant: service

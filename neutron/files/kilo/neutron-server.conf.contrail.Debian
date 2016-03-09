@@ -352,7 +352,7 @@ nova_url = http://{{ neutron.compute.host }}:8774/v2
 
 # Name of nova region to use. Useful if keystone manages more than one region
 # nova_region_name =
-nova_region_name = RegionOne
+nova_region_name = {{ neutron.compute.region }}
 
 # Username for connection to nova in admin context
 # nova_admin_username =
@@ -720,6 +720,7 @@ admin_user = {{ neutron.identity.user }}
 admin_password = {{ neutron.identity.password }}
 auth_uri=http://{{ neutron.identity.host }}:5000
 auth_url=http://{{ neutron.identity.host }}:35357
+auth_region={{ neutron.identity.region }}
 
 [database]
 # This line MUST be changed to actually run the plugin.

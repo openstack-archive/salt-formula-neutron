@@ -146,6 +146,22 @@ Neutron switch on the compute node with live migration turned on
           password: pwd
           virtual_host: '/openstack'
 
+Neutron Keystone region
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        enabled: true
+        version: kilo
+        ...
+        identity:
+          region: RegionTwo
+        ...
+        compute:
+          region: RegionTwo
+        ...
+
 Usage
 =====
 
