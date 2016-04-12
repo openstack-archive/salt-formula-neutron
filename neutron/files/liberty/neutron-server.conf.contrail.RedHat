@@ -988,8 +988,16 @@ rpc_conn_pool_size = 40
 # The RabbitMQ broker address where a single node is used. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_host
 # rabbit_host = localhost
+
+{%- if server.message_queue.hosts is defined %}
+rabbit_hosts = {% for host in server.message_queue.hosts %}
+                   {{ host.address }}:{{ host.port }}
+                   {%- if not loop.last %},{% endif %}
+               {% endfor %}}
+{%- else %}
 rabbit_host = {{ neutron.message_queue.host }}
 rabbit_port = {{ neutron.message_queue.port }}
+{%- endif %}
 
 rabbit_userid = {{ neutron.message_queue.user }}
 rabbit_password = {{ neutron.message_queue.password }}
