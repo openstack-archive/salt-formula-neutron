@@ -982,53 +982,26 @@ rpc_conn_pool_size = 40
 # The RabbitMQ broker address where a single node is used. (string value)
 # Deprecated group/name - [DEFAULT]/rabbit_host
 # rabbit_host = localhost
-rabbit_host = {{ neutron.message_queue.host }}
-rabbit_port = {{ neutron.message_queue.port }}
+
+{%- if server.message_queue.members is defined %}
+rabbit_hosts = {% for member in server.message_queue.members -%}
+                   {{ member.host }}:{{ member.get('port', 5672) }}
+                   {%- if not loop.last -%},{%- endif -%}
+               {%- endfor -%}
+{%- else %}
+rabbit_host = {{ server.message_queue.host }}
+rabbit_port = {{ server.message_queue.port }}
+{%- endif %}
 
 rabbit_userid = {{ neutron.message_queue.user }}
 rabbit_password = {{ neutron.message_queue.password }}
 rabbit_virtual_host = {{ neutron.message_queue.virtual_host }}
 
-# The RabbitMQ broker port where a single node is used. (integer value)
-# Deprecated group/name - [DEFAULT]/rabbit_port
-# rabbit_port = 5672
 
-# RabbitMQ HA cluster host:port pairs. (list value)
-# Deprecated group/name - [DEFAULT]/rabbit_hosts
-# rabbit_hosts = $rabbit_host:$rabbit_port
-
-# Connect over SSL for RabbitMQ. (boolean value)
-# Deprecated group/name - [DEFAULT]/rabbit_use_ssl
-# rabbit_use_ssl = false
-
-# The RabbitMQ userid. (string value)
-# Deprecated group/name - [DEFAULT]/rabbit_userid
-# rabbit_userid = guest
-
-# The RabbitMQ password. (string value)
-# Deprecated group/name - [DEFAULT]/rabbit_password
-# rabbit_password = guest
-
-# The RabbitMQ login method. (string value)
-# Deprecated group/name - [DEFAULT]/rabbit_login_method
-# rabbit_login_method = AMQPLAIN
-
-# The RabbitMQ virtual host. (string value)
-# Deprecated group/name - [DEFAULT]/rabbit_virtual_host
-# rabbit_virtual_host = /
-
-# How frequently to retry connecting with RabbitMQ. (integer value)
 rabbit_retry_interval = 1
 
-# How long to backoff for between retries when connecting to RabbitMQ. (integer
-# value)
-# Deprecated group/name - [DEFAULT]/rabbit_retry_backoff
 rabbit_retry_backoff = 2
 
-# Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
-# count). (integer value)
-# Deprecated group/name - [DEFAULT]/rabbit_max_retries
-# rabbit_max_retries = 0
 rabbit_max_retries = 0
 
 # Use HA queues in RabbitMQ (x-ha-policy: all). If you change this option, you
