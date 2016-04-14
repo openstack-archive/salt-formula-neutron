@@ -1,2 +1,0 @@
-neutron/*             /usr/share/salt-formulas/env/neutron/
-metadata/service/*      /usr/share/salt-formulas/reclass/service/neutron/
