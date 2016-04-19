@@ -1281,8 +1281,16 @@ driver = messagingv2
 # RabbitMQ HA cluster host:port pairs. (list value)
 # Deprecated group/name - [DEFAULT]/rabbit_hosts
 #rabbit_hosts = $rabbit_host:$rabbit_port
+#
+{%- if server.message_queue.members is defined %}
+rabbit_hosts = {% for member in server.message_queue.members -%}
+                   {{ member.host }}:{{ member.get('port', 5672) }}
+                   {%- if not loop.last -%},{%- endif -%}
+               {%- endfor -%}
+{%- else %}
 rabbit_host = {{ server.message_queue.host }}
 rabbit_port = {{ server.message_queue.port }}
+{%- endif %}
 
 rabbit_userid = {{ server.message_queue.user }}
 rabbit_password = {{ server.message_queue.password }}
