@@ -33,7 +33,6 @@ neutron:
       user: openstack
       password: password
       virtual_host: '/openstack'
-      ha_queues: true
     compute:
       host: 127.0.0.1
       region: RegionOne

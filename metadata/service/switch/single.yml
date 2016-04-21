@@ -30,4 +30,3 @@ parameters:
         user: openstack
         password: ${_secret:rabbitmq_openstack_password}
         virtual_host: '/openstack'
-        ha_queues: true
