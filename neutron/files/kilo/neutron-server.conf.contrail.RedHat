@@ -373,7 +373,7 @@ nova_admin_password = {{ neutron.compute.password }}
 
 # Authorization URL for connection to nova in admin context.
 # nova_admin_auth_url =
-nova_admin_auth_url = http://{{ neutron.identity.host }}:35357
+nova_admin_auth_url = http://{{ neutron.identity.host }}:35357/v2.0
 
 # CA file for novaclient to verify server certificates
 # nova_ca_certificates_file =
