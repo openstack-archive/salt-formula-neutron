@@ -1,0 +1,13 @@
+orchestrate:
+  server:
+    priority: 580
+    args:
+      - batch: 1
+      - require:
+        - salt: keystone.server
+  compute:
+    priority: 590
+    args:
+      - require:
+        - salt: neutron.server
+
