@@ -779,17 +779,19 @@ connection = sqlite:////var/lib/neutron/neutron.sqlite
 
 
 [keystone_authtoken]
-
-identity_uri = http://{{ server.identity.host }}:5000
-auth_host = {{ server.identity.host }}
-auth_port = {{ server.identity.port }}
-auth_protocol = http
-admin_tenant_name = {{ server.identity.tenant }}
-admin_user = {{ server.identity.user }}
-admin_password = {{ server.identity.password }}
+auth_region={{ server.identity.region }}
+revocation_cache_time = 10
+auth_type = password
+user_domain_id = {{ server.identity.get('domain', 'default') }}
+project_domain_id = {{ server.identity.get('domain', 'default') }}
+project_name = {{ server.identity.tenant }}
+username = {{ server.identity.user }}
+password = {{ server.identity.password }}
 auth_uri=http://{{ server.identity.host }}:5000
 auth_url=http://{{ server.identity.host }}:35357
-auth_region={{ server.identity.region }}
+{%- if server.cache is defined %}
+memcached_servers={%- for member in server.cache.members %}{{ member.host }}:11211{% if not loop.last %},{% endif %}{%- endfor %}
+{%- endif %}
 #
 # From keystonemiddleware.auth_token
 #
