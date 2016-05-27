@@ -49,12 +49,16 @@ neutron_server_service:
   - template: jinja
   - require:
     - pkg: neutron_server_packages
+{%- if not grains.get('noservices', False) %}
   - watch_in:
     - service: neutron_server_services
-
 {%- endif %}
 
 {%- endif %}
+
+{%- endif %}
+
+{%- if not grains.get('noservices', False) %}
 
 neutron_server_services:
   service.running:
@@ -62,5 +66,18 @@ neutron_server_services:
   - enable: true
   - watch:
     - file: /etc/neutron/neutron.conf
+
+{%- endif %}
+
+{%- if grains.get('virtual_subtype', None) == "Docker" %}
+
+neutron_entrypoint:
+  file.managed:
+  - name: /entrypoint.sh
+  - template: jinja
+  - source: salt://neutron/files/entrypoint.sh
+  - mode: 755
+
+{%- endif %}
 
 {%- endif %}
