@@ -41,6 +41,8 @@ neutron_server_service:
   - watch:
     - file: /etc/neutron/neutron.conf
 
+{%- endif %}
+
 {%- if grains.os_family == "Debian" %}
 
 /etc/default/neutron-server:
@@ -52,9 +54,45 @@ neutron_server_service:
 {%- if not grains.get('noservices', False) %}
   - watch_in:
     - service: neutron_server_services
+
 {%- endif %}
 
 {%- endif %}
+
+{% if server.plugin == "midonet" %}
+
+midonet_neutron_packages:
+  pkg.installed:
+  - names:
+    - python-neutron-plugin-midonet
+
+/etc/neutron/neutron.conf:
+  file.managed:
+  - source: salt://neutron/files/{{ server.version }}/neutron-server.conf.midonet.{{ grains.os_family }}
+  - template: jinja
+  - require:
+    - pkg: neutron_server_packages
+
+/etc/neutron/plugins/midonet/midonet.ini:
+  file.managed:
+    - source: salt://neutron/files/{{ server.version }}/midonet.ini
+    - user: root
+    - group: root
+    - mode: 644
+    - makedirs: true
+    - dir_mode: 755
+    - template: jinja
+
+neutron_db_manage:
+  cmd.run:
+  - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/midonet/midonet.ini upgrade head
+  - require:
+    - file: /etc/neutron/neutron.conf
+    - file: /etc/neutron/plugins/midonet/midonet.ini
+
+midonet-db-manage:
+  cmd.run:
+  - name: midonet-db-manage upgrade head
 
 {%- endif %}
 
