@@ -5,6 +5,14 @@ neutron_server_packages:
   pkg.installed:
   - names: {{ server.pkgs }}
 
+{% if server.policy is defined %}
+/etc/neutron/policy.json:
+  file.managed:
+  - contents_pillar: neutron:server:policy
+  - require:
+    - pkg: neutron_server_packages
+{%- endif %}
+
 {% if server.plugin == "contrail" %}
 
 /etc/neutron/neutron.conf:

@@ -186,7 +186,20 @@ Client-side RabbitMQ HA setup
           virtual_host: '/openstack'
         ....
 
+Option to replace policy.json with any content
 
+.. code-block:: yaml
+
+    neutron:
+      server:
+        ....
+        policy: |
+          {
+              "context_is_admin":  "role:admin",
+              "owner": "tenant_id:%(tenant_id)s",
+              "admin_or_owner": "rule:context_is_admin or rule:owner",
+              "context_is_advsvc":  "role:advsvc",
+        ....
 
 Usage
 =====
