@@ -7,10 +7,10 @@
 # neutron.conf
 #NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini"
 
-{%- if server.plugin == "ml2" %}
+{%- if server.backend.engine == "ml2" %}
 NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/ml2/ml2_conf.ini"
 {%- endif %}
 
-{%- if server.plugin == "contrail" %}
+{%- if server.backend.engine == "contrail" %}
 NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/opencontrail/ContrailPlugin.ini"
 {%- endif %}
