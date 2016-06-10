@@ -1,7 +1,8 @@
 neutron:
   server:
     enabled: true
-    plugin: ml2
+    backend:
+      engine: contrail
     fwaas: false
     dns_domain: novalocal
     tunnel_type: vxlan

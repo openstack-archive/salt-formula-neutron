@@ -43,7 +43,6 @@ Neutron Server on the controller node
       server:
         enabled: true
         version: havana
-        plugin: ml2/contrail
         bind:
           address: 172.20.0.1
           port: 9696
@@ -83,6 +82,34 @@ Neutron Server on the controller node
           port: 8775
           password: pass
         fwaas: false
+
+Neutron Server with OpenContrail
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        backend:
+          engine: contrail
+          host: contrail_discovery_host
+          port: 8082
+          user: admin
+          password: password
+          tenant: admin
+          token: token
+
+Neutron Server with Midonet
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        backend:
+          engine: midonet
+          host: midonet_api_host
+          port: 8181
+          user: admin
+          password: password
 
 Neutron bridge on the network node
 

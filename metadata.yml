@@ -1,3 +1,6 @@
 name: "neutron"
 version: "2016.4.1"
-source: "https://github.com/tcpcloud/salt-formula-neutron"
+source: "https://github.com/openstack/salt-formula-neutron"
+dependencies:
+- name: opencontrail
+  source: "https://github.com/openstack/salt-formula-opencontrail"

@@ -64,8 +64,14 @@ bind_port = {{ neutron.bind.port }}
 #
 #core_plugin = ml2
 # Example: core_plugin = ml2
+
+{%- if server.backend.engine == "contrail" %}
 core_plugin = neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.NeutronPluginContrailCoreV2
 api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions
+{%- elif server.backend.engine == "midonet" %}
+core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
+{%- endif %}
+
 # (ListOpt) List of service plugin entrypoints to be loaded from the
 # neutron.service_plugins namespace. See setup.cfg for the entrypoint names of
 # the plugins included in the neutron source distribution. For compatibility
@@ -74,7 +80,13 @@ api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin
 #
 # service_plugins =
 # Example: service_plugins = router,firewall,lbaas,vpnaas,metering
-service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
+
+{%- if server.backend.engine == "contrail" %}
+# JPAVLIK TEMPRORARY DISABLE LbaaS until Contrail fix it
+#service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
+{%- elif server.backend.engine == "midonet" %}
+service_plugins = lbaas,midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin,midonet.neutron.services.firewall.plugin.MidonetFirewallPlugin
+{%- endif %}
 
 # Paste configuration file
 # api_paste_config = api-paste.ini
@@ -116,6 +128,12 @@ auth_strategy = keystone
 
 # Allow sending resource operation notification to DHCP agent
 # dhcp_agent_notification = True
+
+{%- if server.backend.engine == "midonet" %}
+dhcp_agent_notification = False
+{%- endif %}
+
+dns_domain = {{ neutron.dns_domain }}
 
 # Enable or disable bulk create/update/delete operations
 # allow_bulk = True
@@ -344,7 +362,13 @@ notify_nova_on_port_status_changes = True
 # Send notifications to nova when port data (fixed_ips/floatingips) change
 # so nova can update it's cache.
 # notify_nova_on_port_data_changes = True
+
+{%- if server.backend.engine == "contrail" %}
+# TEMPORARY BUG - cannot associate floating ips with notification port True. OpenStack Bug
+notify_nova_on_port_data_changes = False
+{%- elif server.backend.engine == "midonet" %}
 notify_nova_on_port_data_changes = True
+{%- endif %}
 
 # URL for connection to nova (Only supports one nova region currently).
 # nova_url = http://127.0.0.1:8774/v2
@@ -603,7 +627,10 @@ rpc_backend=rabbit
 [quotas]
 # Default driver to use for quota checks
 # quota_driver = neutron.db.quota_db.DbQuotaDriver
+
+{%- if server.backend.engine == "contrail" %}
 quota_driver = neutron_plugin_contrail.plugins.opencontrail.quota.driver.QuotaDriver
+{%- endif %}
 
 # Resource name(s) that are supported in quota features
 # quota_items = network,subnet,port
@@ -725,7 +752,13 @@ auth_region={{ neutron.identity.region }}
 [database]
 # This line MUST be changed to actually run the plugin.
 # Example:
+
+{%- if server.backend.engine == "contrail" %}
 connection = sqlite:////var/lib/neutron/neutron.sqlite
+{%- elif server.backend.engine == "midonet" %}
+connection = {{ server.database.engine }}://{{ server.database.user }}:{{ server.database.password }}@{{ server.database.host }}/{{ server.database.name }}
+{%- endif %}
+
 # Replace 127.0.0.1 above with the IP address of the database used by the
 # main neutron server. (Leave it as is if the database runs on this host.)
 # connection = sqlite://
@@ -773,6 +806,7 @@ connection = sqlite:////var/lib/neutron/neutron.sqlite
 [nova]
 # Name of the plugin to load
 # auth_plugin =
+auth_plugin = password
 
 # Config Section from which to load plugin specific options
 # auth_section =
@@ -983,7 +1017,6 @@ rpc_conn_pool_size = 40
 # Deprecated group/name - [DEFAULT]/rabbit_host
 # rabbit_host = localhost
 
-
 {%- if server.message_queue.members is defined %}
 rabbit_hosts = {% for member in server.message_queue.members -%}
                    {{ member.host }}:{{ member.get('port', 5672) }}
@@ -1019,7 +1052,13 @@ quota_subnet = -1
 quota_port = -1
 
 [NOVA]
+{%- if server.backend.engine == "contrail" %}
 vif_types = vrouter
+{%- endif %}
 
 [service_providers]
+{%- if server.backend.engine == "contrail" %}
 service_provider = LOADBALANCER:Opencontrail:neutron_plugin_contrail.plugins.opencontrail.loadbalancer.driver.OpencontrailLoadbalancerDriver:default
+{%- elif server.backend.engine == "midonet" %}
+service_provider = LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default
+{%- endif %}
