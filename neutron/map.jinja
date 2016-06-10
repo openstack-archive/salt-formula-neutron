@@ -39,3 +39,22 @@
         'notification': False
     },
 }, merge=salt['pillar.get']('neutron:server')) %}
+
+{%- if pillar.neutron.server.enabled %}
+
+{%- set tmp_server = pillar.neutron.server %}
+
+{%- if not tmp_server.backend is defined %}
+
+{%- if not tmp_server.plugin == "contrail" %}
+
+{%- from "opencontrail/map.jinja" import config with context %}
+
+{%- set backend = {'engine': tmp_server.plugin, 'host': config.discovery.host, 'token': config.identity.token, 'user': config.identity.user, 'password': config.identity.password, 'tenant': config.identity.tenant} %}
+{%- set tmp = server.update(backend) %}
+
+{%- endif %}
+
+{%- endif %}
+
+{%- endif %}

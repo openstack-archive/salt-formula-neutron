@@ -14,3 +14,7 @@ NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/ml2/ml2_conf.ini"
 {%- if server.plugin == "contrail" %}
 NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/opencontrail/ContrailPlugin.ini"
 {%- endif %}
+
+{%- if server.plugin == "midonet" %}
+NEUTRON_PLUGIN_CONFIG="/etc/neutron/plugins/midonet/midonet.ini"
+{%- endif %}
