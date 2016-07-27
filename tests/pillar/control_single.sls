@@ -3,6 +3,12 @@ neutron:
     enabled: true
     backend:
       engine: contrail
+      host: contrail_discovery_host
+      port: 8082
+      user: admin
+      password: password
+      tenant: admin
+      token: token
     fwaas: false
     dns_domain: novalocal
     tunnel_type: vxlan
