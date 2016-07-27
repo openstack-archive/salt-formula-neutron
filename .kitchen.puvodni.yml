@@ -1,0 +1,82 @@
+---
+driver:
+  name: docker
+  sudo: false
+  vm_hostname: neutron.ci.local
+
+driver_config:
+  require_chef_omnibus: true
+
+
+provisioner:
+  name: salt_solo
+  # As of 2016/06 http://bootstrap.saltstack.org 
+  # - do not handle ubuntu 16.04.
+  # - is missing apt-transport-https
+  # Temporarlily, use branch with PR to upstream
+  salt_bootstrap_url: https://raw.githubusercontent.com/epcim/salt-bootstrap/add-apt-transport-https-ubuntu/bootstrap-salt.sh
+
+  salt_install: bootstrap
+  salt_version: latest
+  formula: neutron
+  log_level: debug
+  state_top:
+    base:
+      "*":
+        - neutron
+  pillars:
+    top.sls:
+      base:
+        "*":
+          - neutron
+    neutron.sls:
+      #server:
+      #  ssl:
+      #    enable: false
+  grains:
+    noservices: True
+
+verifier:
+  name: inspec
+  sudo: true
+
+platforms:
+
+  - name: ubuntu-14.04
+  - name: ubuntu-16.04
+
+  # ON CENTOS-7 PLATFORM SUITES FAILS, TO BE RESOLVED
+  #- name: centos-7
+    # CENTOS Build essential prerequisites required to run tests/run_tests.sh (default-* suites)
+    #driver:
+      #provision_command:
+        #- sed -i -e "s/Defaults    requiretty.*/#Defaults    requiretty/g" /etc/sudoers
+        #- yum install -y git make gcc gcc-c++ python-yaml python-virtualenv
+
+
+suites:
+
+  # Default suite, smoke test, setup prerequisites and executes run ./tests/run_tests.sh
+  - name: default
+    includes:
+      - ubuntu-16.04
+    driver:
+      volume:
+        - <%= ENV['PWD'] %>:/tmp/kitchen
+      provision_command:
+        - apt-get update
+        - apt-get install -y git build-essential python-pip python-yaml python-dev python-virtualenv
+    provisioner:
+      name: shell
+      script: tests/bootstrap.sh
+
+  - name: control-single
+    provisioner:
+      pillars-from-files:
+        neutron.sls: tests/pillar/control_single.sls
+
+  - name: control-cluster
+    provisioner:
+      pillars-from-files:
+        neutron.sls: tests/pillar/control_cluster.sls
+

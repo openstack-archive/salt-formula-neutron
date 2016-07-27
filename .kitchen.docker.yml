@@ -1,0 +1,13 @@
+---
+driver:
+  name: docker
+  hostname: neutron.ci.local
+  use_sudo: false
+
+
+
+provisioner:
+  grains:
+    noservices: True
+
+
