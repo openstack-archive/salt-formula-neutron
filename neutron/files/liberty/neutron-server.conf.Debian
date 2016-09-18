@@ -67,7 +67,7 @@ bind_port = {{ neutron.bind.port }}
 
 {%- if server.backend.engine == "contrail" %}
 core_plugin = neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.NeutronPluginContrailCoreV2
-api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions
+api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions:/usr/lib/python2.7/dist-packages/neutron_lbaas/extensions
 {%- elif server.backend.engine == "midonet" %}
 core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
 {%- endif %}
@@ -82,8 +82,7 @@ core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
 # Example: service_plugins = router,firewall,lbaas,vpnaas,metering
 
 {%- if server.backend.engine == "contrail" %}
-# JPAVLIK TEMPRORARY DISABLE LbaaS until Contrail fix it
-#service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
+service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
 {%- elif server.backend.engine == "midonet" %}
 service_plugins = lbaas,midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin,midonet.neutron.services.firewall.plugin.MidonetFirewallPlugin
 {%- endif %}

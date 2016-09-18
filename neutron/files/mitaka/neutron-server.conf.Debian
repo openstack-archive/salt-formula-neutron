@@ -26,7 +26,7 @@ bind_port = {{ server.bind.port }}
 # neutron.extensions is appended to this, so if your extensions are in there
 # you don't need to specify them here. (string value)
 #api_extensions_path =
-api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions
+api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions:/usr/lib/python2.7/dist-packages/neutron_lbaas/extensions
 
 # The type of authentication to use (string value)
 #auth_strategy = keystone
@@ -38,7 +38,7 @@ core_plugin = neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.Neutr
 
 # The service plugins Neutron will use (list value)
 #service_plugins =
-
+service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
 # The base MAC address Neutron will use for VIFs. The first 3 octets will
 # remain unchanged. If the 4th octet is not 00, it will also be used. The
 # others will be randomly generated. (string value)
