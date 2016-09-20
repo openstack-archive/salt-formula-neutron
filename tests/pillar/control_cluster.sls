@@ -7,12 +7,6 @@ neutron:
     version: liberty
     backend:
       engine: contrail
-      host: contrail_discovery_host
-      port: 8082
-      user: admin
-      password: password
-      tenant: admin
-      token: token
     bind:
       address: 127.0.0.1
       port: 9696
