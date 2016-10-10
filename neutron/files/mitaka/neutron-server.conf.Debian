@@ -26,7 +26,7 @@ bind_port = {{ server.bind.port }}
 # neutron.extensions is appended to this, so if your extensions are in there
 # you don't need to specify them here. (string value)
 #api_extensions_path =
-api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions:/usr/lib/python2.7/dist-packages/neutron_lbaas/extensions
+api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions
 
 # The type of authentication to use (string value)
 #auth_strategy = keystone
@@ -38,7 +38,7 @@ core_plugin = neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.Neutr
 
 # The service plugins Neutron will use (list value)
 #service_plugins =
-service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
+#service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
 # The base MAC address Neutron will use for VIFs. The first 3 octets will
 # remain unchanged. If the 4th octet is not 00, it will also be used. The
 # others will be randomly generated. (string value)
@@ -782,6 +782,12 @@ connection = sqlite:////var/lib/neutron/neutron.sqlite
 auth_region={{ server.identity.region }}
 revocation_cache_time = 10
 auth_type = password
+auth_host = {{ server.identity.host }}
+auth_port = 35357
+admin_token = {{ server.backend.token }}
+admin_user={{ server.backend.user }}
+admin_password={{ server.backend.password }}
+admin_tenant_name={{ server.backend.tenant }}
 user_domain_id = {{ server.identity.get('domain', 'default') }}
 project_domain_id = {{ server.identity.get('domain', 'default') }}
 project_name = {{ server.identity.tenant }}
@@ -1577,3 +1583,11 @@ quota_driver = neutron_plugin_contrail.plugins.opencontrail.quota.driver.QuotaDr
 #ciphers = <None>
 [service_providers]
 service_provider = LOADBALANCER:Opencontrail:neutron_plugin_contrail.plugins.opencontrail.loadbalancer.driver.OpencontrailLoadbalancerDriver:default
+
+{%- if server.backend.engine == "contrail" %}
+[APISERVER]
+api_server_ip = {{ server.backend.host }}
+api_server_port = 8082
+multi_tenancy = True
+contrail_extensions = ipam:neutron_plugin_contrail.plugins.opencontrail.contrail_plugin_ipam.NeutronPluginContrailIpam,policy:neutron_plugin_contrail.plugins.opencontrail.contrail_plugin_policy.NeutronPluginContrailPolicy,route-table:neutron_plugin_contrail.plugins.opencontrail.contrail_plugin_vpc.NeutronPluginContrailVpc,contrail:None
+{%- endif %}

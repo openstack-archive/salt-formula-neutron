@@ -1,0 +1,8 @@
+
+config:
+  {%- if pillar.neutron.server is defined %}
+  {%- from "neutron/map.jinja" import server with context %}
+  neutron.conf:
+    source: "salt://neutron/files/{{ server.version }}/neutron-server.conf.{{ grains.os_family|default('Debian') }}"
+    template: jinja
+  {%- endif %}
