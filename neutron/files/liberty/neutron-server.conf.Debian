@@ -1061,3 +1061,7 @@ service_provider = LOADBALANCER:Opencontrail:neutron_plugin_contrail.plugins.ope
 {%- elif server.backend.engine == "midonet" %}
 service_provider = LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default
 {%- endif %}
+
+{% if server.backend.engine == "contrail" %}
+{% include "neutron/files/"+server.version+"/ContrailPlugin.ini" %}
+{% endif %}

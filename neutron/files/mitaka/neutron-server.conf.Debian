@@ -1577,3 +1577,7 @@ quota_driver = neutron_plugin_contrail.plugins.opencontrail.quota.driver.QuotaDr
 #ciphers = <None>
 [service_providers]
 service_provider = LOADBALANCER:Opencontrail:neutron_plugin_contrail.plugins.opencontrail.loadbalancer.driver.OpencontrailLoadbalancerDriver:default
+
+{% if server.backend.engine == "contrail" %}
+{% include "neutron/files/"+server.version+"/ContrailPlugin.ini" %}
+{% endif %}
