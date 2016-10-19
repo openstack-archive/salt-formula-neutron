@@ -25,8 +25,9 @@ bind_port = {{ server.bind.port }}
 # extensions:/path/to/more/exts:/even/more/exts. The __path__ of
 # neutron.extensions is appended to this, so if your extensions are in there
 # you don't need to specify them here. (string value)
-#api_extensions_path =
-api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions:/usr/lib/python2.7/dist-packages/neutron_lbaas/extensions
+# TEMPORARY - until neutron v2 contrail package would be supported
+#api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions:/usr/lib/python2.7/dist-packages/neutron_lbaas/extensions
+api_extensions_path = extensions:/usr/lib/python2.7/dist-packages/neutron_plugin_contrail/extensions
 
 # The type of authentication to use (string value)
 #auth_strategy = keystone
@@ -37,8 +38,8 @@ core_plugin = neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.Neutr
 
 
 # The service plugins Neutron will use (list value)
-#service_plugins =
-service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.plugin.LoadBalancerPlugin
+# TEMPORARY - until neutron v2 contrail package would be supported
+#service_plugins = neutron_plugin_contrail.plugins.opencontrail.loadbalancer.v2.plugin.LoadBalancerPluginV2
 # The base MAC address Neutron will use for VIFs. The first 3 octets will
 # remain unchanged. If the 4th octet is not 00, it will also be used. The
 # others will be randomly generated. (string value)
@@ -149,7 +150,7 @@ notify_nova_on_port_status_changes = True
 # Send notification to nova when port data (fixed_ips/floatingip) changes so
 # nova can update its cache. (boolean value)
 #notify_nova_on_port_data_changes = true
-notify_nova_on_port_data_changes = False
+notify_nova_on_port_data_changes = True
 
 # Number of seconds between sending events to nova if there are any events to
 # send. (integer value)
@@ -780,8 +781,15 @@ connection = sqlite:////var/lib/neutron/neutron.sqlite
 
 [keystone_authtoken]
 auth_region={{ server.identity.region }}
+auth_protocol=http
 revocation_cache_time = 10
 auth_type = password
+auth_host = {{ server.identity.host }}
+auth_port = 35357
+admin_token = {{ server.backend.token }}
+admin_user={{ server.backend.user }}
+admin_password={{ server.backend.password }}
+admin_tenant_name={{ server.backend.tenant }}
 user_domain_id = {{ server.identity.get('domain', 'default') }}
 project_domain_id = {{ server.identity.get('domain', 'default') }}
 project_name = {{ server.identity.tenant }}
