@@ -1,0 +1,19 @@
+log_collector:
+  decoder:
+    neutron:
+      engine: sandbox
+      module_file: /usr/share/lma_collector/decoders/openstack_log.lua
+      module_dir: /usr/share/lma_collector/common;/usr/share/heka/lua_modules
+  splitter:
+    neutron:
+      engine: token
+      delimiter: '\n'
+  input:
+    neutron_log:
+      engine: logstreamer
+      log_directory: "/var/log/neutron"
+      file_match: '(?P<Service>(dhcp-agent|l3-agent|metadata-agent|neutron-netns-cleanup|openvswitch-agent|server))\.log\.?(?P<Seq>\d*)$'
+      differentiator: ['neutron', '_', 'Service']
+      priority: ["^Seq"]
+      decoder: "neutron_decoder"
+      splitter: "neutron_splitter"
