@@ -1,5 +1,6 @@
 {%- if pillar.neutron.server %}
 {%- from "neutron/map.jinja" import server with context %}
+{%- if server.get('enabled', False) %}
 local_plugin:
   collectd_check_local_endpoint:
     endpoint:
@@ -14,4 +15,5 @@ remote_plugin:
     username: {{ server.identity.user }}
     password: {{ server.identity.password }}
     tenant: {{ server.identity.tenant }}
+{%- endif %}
 {%- endif %}
