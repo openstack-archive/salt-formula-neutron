@@ -1,6 +1,11 @@
 {%- if pillar.neutron.server %}
 {%- from "neutron/map.jinja" import server with context %}
-
+local_plugin:
+  collectd_check_local_endpoint:
+    endpoint:
+      neutron-api:
+        expected_code: 200
+        url: "http://{{ server.bind.address|replace('0.0.0.0', '127.0.0.1') }}:{{ server.bind.port }}/"
 remote_plugin:
   openstack_neutron:
     plugin: python
