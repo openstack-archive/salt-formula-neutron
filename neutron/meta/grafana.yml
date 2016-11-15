@@ -1,0 +1,3 @@
+dashboard:
+  neutron:
+    template: neutron/files/Neutron.json
