@@ -114,7 +114,7 @@
                 {
                   "key": "cluster_name",
                   "operator": "=",
-                  "value": "neutron-control-plane"
+                  "value": "neutron-control"
                 }
               ]
             }
@@ -242,7 +242,7 @@
                 {
                   "key": "cluster_name",
                   "operator": "=",
-                  "value": "neutron-data-plane"
+                  "value": "neutron-compute"
                 }
               ]
             }

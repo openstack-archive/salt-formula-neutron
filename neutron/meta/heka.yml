@@ -18,3 +18,136 @@ log_collector:
       priority: ["^Seq"]
       decoder: "neutron_decoder"
       splitter: "neutron_splitter"
+metric_collector:
+  trigger:
+    neutron_logs_error:
+      description: 'Too many errors have been detected in Neutron logs'
+      severity: warning
+      no_data_policy: okay
+      rules:
+      - metric: log_messages
+        field:
+          service: neutron
+          level: error
+        relational_operator: '>'
+        threshold: 0.1
+        window: 70
+        periods: 0
+        function: max
+    {%- if pillar.neutron.server is defined %}
+    neutron_api_local_endpoint:
+      description: 'Neutron API is locally down'
+      severity: down
+      rules:
+      - metric: openstack_check_local_api
+        field:
+          service: neutron-api
+        relational_operator: '=='
+        threshold: 0
+        window: 60
+        periods: 0
+        function: last
+    {%- endif %}
+  alarm:
+    {%- if pillar.neutron.compute is defined %}
+    neutron_logs_compute:
+      alerting: enabled
+      triggers:
+      - neutron_logs_error
+      dimension:
+        service: neutron-logs-compute
+    {%- endif %}
+    {%- if pillar.neutron.server is defined %}
+    neutron_logs:
+      alerting: enabled
+      triggers:
+      - neutron_logs_error
+      dimension:
+        service: neutron-logs
+    neutron_api_endpoint:
+      alerting: enabled
+      triggers:
+      - neutron_api_local_endpoint
+      dimension:
+        service: neutron-api-endpoint
+    {%- endif %}
+remote_collector:
+  trigger:
+    {%- if pillar.neutron.server is defined %}
+    neutron_api_check_failed:
+      description: 'Endpoint check for neutron-api is failed'
+      severity: down
+      rules:
+      - metric: openstack_check_api
+        field:
+          service: neutron-api
+        relational_operator: '=='
+        threshold: 0
+        window: 60
+        periods: 0
+        function: last
+    {%- endif %}
+  alarm:
+    {%- if pillar.neutron.server is defined %}
+    neutron_api_check:
+      alerting: true
+      triggers:
+      - neutron_api_check_failed
+      dimension:
+        service: neutron-api-check
+    {%- endif %}
+aggregator:
+  alarm_cluster:
+    neutron_logs_compute:
+      policy: highest_severity
+      group_by: hostname
+      match:
+        service: neutron-logs-compute
+      members:
+      - neutron_logs_compute
+      dimension:
+        service: neutron-compute
+    neutron_logs:
+      policy: highest_severity
+      group_by: hostname
+      match:
+        service: neutron-logs
+      members:
+      - neutron_logs
+      dimension:
+        service: neutron-control
+    neutron_api_endpoint:
+      policy: availability_of_members
+      group_by: hostname
+      match:
+        service: neutron-api-endpoint
+      members:
+      - neutron_api_endpoint
+      dimension:
+        service: neutron-control
+    neutron_api_check:
+      policy: highest_severity
+      match:
+        service: neutron-api-check
+      members:
+      - neutron_api_check
+      dimension:
+        service: neutron-control
+    neutron_control:
+      policy: highest_severity
+      match:
+        service: neutron-control
+      members:
+      - neutron_logs
+      - neutron_api_endpoint
+      - neutron_api_check
+      dimension:
+        cluster_name: neutron-control
+    neutron_compute:
+      policy: highest_severity
+      match:
+        service: neutron-compute
+      members:
+      - neutron_logs_compute
+      dimension:
+        cluster_name: neutron-compute
