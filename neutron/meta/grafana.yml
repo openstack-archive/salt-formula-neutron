@@ -1,3 +1,4 @@
 dashboard:
   neutron:
+    format: json
     template: neutron/files/grafana_influxdb.json
