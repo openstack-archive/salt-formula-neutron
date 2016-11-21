@@ -10,28 +10,6 @@ Starting in the Folsom release, Neutron is a core and supported part of the
 OpenStack platform (for Essex, we were an "incubated" project, which means use
 is suggested only for those who really know what they're doing with Neutron). 
 
-Usage notes
-===========
-
-For live migration to work, you have to set migration param on bridge and
-switch nodes.
-
-.. code-block:: yaml
-
-    neutron:
-      bridge:
-        enabled: true
-        migration: true
-
-.. code-block:: yaml
-
-    neutron:
-      switch:
-        enabled: true
-        migration: true
-
-Furthermore you need to set private and public keys for user 'neutron'.
-
 Sample pillars
 ==============
 
@@ -42,20 +20,10 @@ Neutron Server on the controller node
     neutron:
       server:
         enabled: true
-        version: havana
+        version: mitaka
         bind:
           address: 172.20.0.1
           port: 9696
-        tunnel_type: vxlan
-        public_networks:
-        - name: public
-          subnets:
-          - name: public-subnet
-            gateway: 10.0.0.1
-            network: 10.0.0.0/24
-            pool_start: 10.0.5.20
-            pool_end: 10.0.5.200
-            dhcp: False
         database:
           engine: mysql
           host: 127.0.0.1
@@ -81,14 +49,460 @@ Neutron Server on the controller node
           host: 127.0.0.1
           port: 8775
           password: pass
-        fwaas: false
 
-Neutron Server with OpenContrail
+Neutron VXLAN tenant networks with Network Nodes (with DVR for East-West
+ and Network node for North-South)
+=========================================================================
+===================================
+
+This use case describes a model utilising VxLAN overlay with DVR. The DVR
+ routers will only be utilized for traffic that is router within the cloud
+  infrastructure and that remains encapsulated. External traffic will be 
+  routed to via the network nodes. 
+
+The intention is that each tenant will require at least two (2) vrouters 
+one to be utilised 
+
+Neutron Server only
+-------------------
 
 .. code-block:: yaml
 
     neutron:
       server:
+        version: mitaka
+        plugin: ml2
+        bind:
+          address: 172.20.0.1
+          port: 9696
+        database:
+          engine: mysql
+          host: 127.0.0.1
+          port: 3306
+          name: neutron
+          user: neutron
+          password: pwd
+        identity:
+          engine: keystone
+          host: 127.0.0.1
+          port: 35357
+          user: neutron
+          password: pwd
+          tenant: service
+        message_queue:
+          engine: rabbitmq
+          host: 127.0.0.1
+          port: 5672
+          user: openstack
+          password: pwd
+          virtual_host: '/openstack'
+        global_physnet_mtu: 9000
+        l3_ha: False # Which type of router will be created by default
+        dvr: True # disabled for non DVR use case
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vxlan"
+          external_mtu: 9000
+          mechanism:
+            ovs:
+              driver: openvswitch
+
+Network Node only
+-----------------
+
+.. code-block:: yaml
+
+    neutron:
+      gateway:
+        enabled: True
+        version: mitaka
+        message_queue:
+          engine: rabbitmq
+          host: 127.0.0.1
+          port: 5672
+          user: openstack
+          password: pwd
+          virtual_host: '/openstack'
+        local_ip: 192.168.20.20 # br-mesh ip address
+        dvr: True # disabled for non DVR use case
+        agent_mode: dvr_snat
+        metadata:
+          host: 127.0.0.1
+          password: pass
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vxlan"
+          mechanism:
+            ovs:
+              driver: openvswitch  
+
+Compute Node
+-------------
+
+.. code-block:: yaml
+
+    neutron:
+      compute:
+        enabled: True
+        version: mitaka
+        message_queue:
+          engine: rabbitmq
+          host: 127.0.0.1
+          port: 5672
+          user: openstack
+          password: pwd
+          virtual_host: '/openstack'
+        local_ip: 192.168.20.20 # br-mesh ip address
+        dvr: True # disabled for non DVR use case
+        agent_mode: dvr
+        external_access: false # Compute node with DVR for east-west only, Network Node has True as default
+        metadata:
+          host: 127.0.0.1
+          password: pass       
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vxlan"
+          mechanism:
+            ovs:
+              driver: openvswitch
+
+Neutron VXLAN tenant networks with Network Nodes (non DVR)
+==========================================================
+
+This section describes a network solution that utilises VxLAN overlay
+ networks without DVR with all routers being managed on the network nodes.
+
+Neutron Server only
+-------------------
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        version: mitaka
+        plugin: ml2
+        bind:
+          address: 172.20.0.1
+          port: 9696
+        database:
+          engine: mysql
+          host: 127.0.0.1
+          port: 3306
+          name: neutron
+          user: neutron
+          password: pwd
+        identity:
+          engine: keystone
+          host: 127.0.0.1
+          port: 35357
+          user: neutron
+          password: pwd
+          tenant: service
+        message_queue:
+          engine: rabbitmq
+          host: 127.0.0.1
+          port: 5672
+          user: openstack
+          password: pwd
+          virtual_host: '/openstack'
+        global_physnet_mtu: 9000
+        l3_ha: True
+        dvr: False
+        backend:
+          engine: ml2
+          tenant_network_types= "flat,vxlan"
+          external_mtu: 9000
+          mechanism:
+            ovs:
+              driver: openvswitch
+
+Network Node only
+-----------------
+
+.. code-block:: yaml
+
+    neutron:
+      gateway:
+        enabled: True
+        version: mitaka
+        message_queue:
+          engine: rabbitmq
+          host: 127.0.0.1
+          port: 5672
+          user: openstack
+          password: pwd
+          virtual_host: '/openstack'
+        local_ip: 192.168.20.20 # br-mesh ip address
+        dvr: False
+        agent_mode: legacy
+        metadata:
+          host: 127.0.0.1
+          password: pass
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vxlan"
+          mechanism:
+            ovs:
+              driver: openvswitch  
+
+Compute Node
+-------------
+
+.. code-block:: yaml
+
+    neutron:
+      compute:
+        enabled: True
+        version: mitaka
+        message_queue:
+          engine: rabbitmq
+          host: 127.0.0.1
+          port: 5672
+          user: openstack
+          password: pwd
+          virtual_host: '/openstack'
+        local_ip: 192.168.20.20 # br-mesh ip address
+        external_access: False
+        dvr: False      
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vxlan"
+          mechanism:
+            ovs:
+              driver: openvswitch
+
+Neutron VXLAN tenant networks with Network Nodes (with DVR for 
+East-West and North-South, DVR everywhere, Network node for SNAT)
+==============================================================
+========================================================
+
+This section describes a network solution that utilises VxLAN 
+overlay networks with DVR with North-South and East-West. Network 
+Node is used only for SNAT.
+
+Neutron Server only
+-------------------
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        version: mitaka
+        plugin: ml2
+        bind:
+          address: 172.20.0.1
+          port: 9696
+        database:
+          engine: mysql
+          host: 127.0.0.1
+          port: 3306
+          name: neutron
+          user: neutron
+          password: pwd
+        identity:
+          engine: keystone
+          host: 127.0.0.1
+          port: 35357
+          user: neutron
+          password: pwd
+          tenant: service
+        message_queue:
+          engine: rabbitmq
+          host: 127.0.0.1
+          port: 5672
+          user: openstack
+          password: pwd
+          virtual_host: '/openstack'
+        global_physnet_mtu: 9000
+        l3_ha: False
+        dvr: True
+        backend:
+          engine: ml2
+          tenant_network_types= "flat,vxlan"
+          external_mtu: 9000
+          mechanism:
+            ovs:
+              driver: openvswitch
+
+Network Node only
+-----------------
+
+.. code-block:: yaml
+
+    neutron:
+      gateway:
+        enabled: True
+        version: mitaka
+        message_queue:
+          engine: rabbitmq
+          host: 127.0.0.1
+          port: 5672
+          user: openstack
+          password: pwd
+          virtual_host: '/openstack'
+        local_ip: 192.168.20.20 # br-mesh ip address
+        dvr: True
+        agent_mode: dvr_snat
+        metadata:
+          host: 127.0.0.1
+          password: pass
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vxlan"
+          mechanism:
+            ovs:
+              driver: openvswitch  
+
+Compute Node
+-------------
+
+.. code-block:: yaml
+
+    neutron:
+      compute:
+        enabled: True
+        version: mitaka
+        message_queue:
+          engine: rabbitmq
+          host: 127.0.0.1
+          port: 5672
+          user: openstack
+          password: pwd
+          virtual_host: '/openstack'
+        local_ip: 192.168.20.20 # br-mesh ip address
+        dvr: True
+        external_access: True     
+        agent_mode: dvr
+        metadata:
+          host: 127.0.0.1
+          password: pass
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vxlan"
+          mechanism:
+            ovs:
+              driver: openvswitch
+
+Sample Linux network configuration for DVR
+--------------------------------------------
+
+.. code-block:: yaml
+
+    linux:
+      network:
+        bridge: openvswitch
+        interface:
+          eth1:
+            enabled: true
+            type: eth
+            mtu: 9000
+            proto: manual
+          eth2:
+            enabled: true
+            type: eth
+            mtu: 9000
+            proto: manual
+          eth3:
+            enabled: true
+            type: eth
+            mtu: 9000
+            proto: manual
+          br-int:
+            enabled: true
+            mtu: 9000
+            type: ovs_bridge
+          br-floating:
+            enabled: true
+            mtu: 9000
+            type: ovs_bridge
+          float-to-ex:
+            enabled: true
+            type: ovs_port
+            mtu: 65000
+            bridge: br-floating
+          br-mgmt:
+            enabled: true
+            type: bridge
+            mtu: 9000
+            address: ${_param:single_address}
+            netmask: 255.255.255.0
+            use_interfaces:
+            - eth1
+          br-mesh:
+            enabled: true
+            type: bridge
+            mtu: 9000
+            address: ${_param:tenant_address}
+            netmask: 255.255.255.0
+            use_interfaces:
+            - eth2
+          br-ex:
+            enabled: true
+            type: bridge
+            mtu: 9000
+            address: ${_param:external_address}
+            netmask: 255.255.255.0
+            use_interfaces:
+            - eth3
+            use_ovs_ports:
+            - float-to-ex
+
+Neutron VLAN tenant networks with Network Nodes
+===============================================
+
+VLAN tenant provider
+
+Neutron Server only
+-------------------
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        version: mitaka
+        plugin: ml2
+        ...
+        global_physnet_mtu: 9000
+        l3_ha: False
+        dvr: True
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vlan" # Can be mixed flat,vlan,vxlan
+          tenant_vlan_range: "1000:2000"
+          external_vlan_range: "100:200" # Does not have to be defined.
+          external_mtu: 9000
+          mechanism:
+            ovs:
+              driver: openvswitch
+
+Compute node
+-------------------
+
+.. code-block:: yaml
+
+    neutron:
+      compute:
+        version: mitaka
+        plugin: ml2
+        ...
+        dvr: True
+        agent_mode: dvr
+        external_access: False
+        backend:
+          engine: ml2
+          tenant_network_types: "flat,vlan" # Can be mixed flat,vlan,vxlan
+          mechanism:
+            ovs:
+              driver: openvswitch
+
+Neutron Server with OpenContrail
+==================================
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        plugin: contrail
         backend:
           engine: contrail
           host: contrail_discovery_host
@@ -99,6 +513,7 @@ Neutron Server with OpenContrail
           token: token
 
 Neutron Server with Midonet
+===========================
 
 .. code-block:: yaml
 
@@ -111,72 +526,8 @@ Neutron Server with Midonet
           user: admin
           password: password
 
-Neutron bridge on the network node
-
-.. code-block:: yaml
-
-    neutron:
-      bridge:
-        enabled: true
-        version: havana
-        tunnel_type: vxlan
-        bind:
-          address: 172.20.0.2
-        database:
-          engine: mysql
-          host: 127.0.0.1
-          port: 3306
-          name: neutron
-          user: neutron
-          password: pwd
-        identity:
-          engine: keystone
-          host: 127.0.0.1
-          port: 35357
-          user: neutron
-          password: pwd
-          tenant: service
-        message_queue:
-          engine: rabbitmq
-          host: 127.0.0.1
-          port: 5672
-          user: openstack
-          password: pwd
-          virtual_host: '/openstack'
-
-Neutron switch on the compute node with live migration turned on
-
-.. code-block:: yaml
-
-    neutron:
-      switch:
-        enabled: true
-        version: havana
-        migration: True
-        tunnel_type: vxlan
-        bind:
-          address: 127.20.0.100
-        database:
-          engine: mysql
-          host: 127.0.0.1
-          port: 3306
-          name: neutron
-          user: neutron
-          password: pwd
-        identity:
-          engine: keystone
-          host: 127.0.0.1
-          port: 35357
-          user: neutron
-          password: pwd
-          tenant: service
-        message_queue:
-          engine: rabbitmq
-          host: 127.0.0.1
-          port: 5672
-          user: openstack
-          password: pwd
-          virtual_host: '/openstack'
+Other
+=====
 
 Neutron Keystone region
 
