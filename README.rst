@@ -13,22 +13,11 @@ is suggested only for those who really know what they're doing with Neutron).
 Usage notes
 ===========
 
-For live migration to work, you have to set migration param on bridge and
-switch nodes.
-
 .. code-block:: yaml
 
     neutron:
-      bridge:
+      gateway:
         enabled: true
-        migration: true
-
-.. code-block:: yaml
-
-    neutron:
-      switch:
-        enabled: true
-        migration: true
 
 Furthermore you need to set private and public keys for user 'neutron'.
 
