@@ -19,16 +19,8 @@ switch nodes.
 .. code-block:: yaml
 
     neutron:
-      bridge:
+      gateway:
         enabled: true
-        migration: true
-
-.. code-block:: yaml
-
-    neutron:
-      switch:
-        enabled: true
-        migration: true
 
 Furthermore you need to set private and public keys for user 'neutron'.
 
