@@ -36,6 +36,32 @@ neutron_server_service:
 
 {%- endif %}
 
+{% if server.backend.engine == "ml2" %}
+
+/etc/neutron/plugins/ml2/ml2_conf.ini:
+  file.managed:
+  - source: salt://neutron/files/{{ server.version }}/ml2_conf.ini
+  - template: jinja
+  - require:
+    - pkg: neutron_server_packages
+
+ml2_plugin_link:
+  cmd.run:
+  - names:
+    - ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
+  - unless: test -e /etc/neutron/plugin.ini
+  - require:
+    - file: /etc/neutron/plugins/ml2/ml2_conf.ini
+
+neutron_db_manage:
+  cmd.run:
+  - name: neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head
+  - require:
+    - file: /etc/neutron/neutron.conf
+    - file: /etc/neutron/plugins/ml2/ml2_conf.ini
+
+{%- endif %}
+
 /etc/neutron/neutron.conf:
   file.managed:
   - source: salt://neutron/files/{{ server.version }}/neutron-server.conf.{{ grains.os_family }}
