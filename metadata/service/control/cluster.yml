@@ -6,9 +6,7 @@ parameters:
   neutron:
     server:
       enabled: true
-      fwaas: false
       dns_domain: novalocal
-      tunnel_type: vxlan
       version: ${_param:neutron_version}
       bind:
         address: ${_param:cluster_local_address}
