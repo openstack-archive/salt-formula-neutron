@@ -29,6 +29,8 @@ neutron_server_service:
     - file: /etc/neutron/neutron.conf
     - file: /etc/neutron/plugins/ml2/ml2_conf.ini
 
+{%- endif %}
+
 {% if server.backend.engine == "contrail" %}
 
 /etc/neutron/plugins/opencontrail/ContrailPlugin.ini:
