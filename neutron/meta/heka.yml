@@ -49,14 +49,6 @@ metric_collector:
         function: last
     {%- endif %}
   alarm:
-    {%- if pillar.neutron.compute is defined %}
-    neutron_logs_compute:
-      alerting: enabled
-      triggers:
-      - neutron_logs_error
-      dimension:
-        service: neutron-logs-compute
-    {%- endif %}
     {%- if pillar.neutron.server is defined %}
     neutron_logs:
       alerting: enabled
@@ -97,17 +89,6 @@ remote_collector:
     {%- endif %}
 aggregator:
   alarm_cluster:
-    neutron_logs_compute:
-      policy: highest_severity
-      alerting: enabled
-      group_by: hostname
-      match:
-        service: neutron-logs-compute
-      members:
-      - neutron_logs_compute
-      dimension:
-        service: neutron-compute
-        nagios_host: 01-service-clusters
     neutron_logs:
       policy: highest_severity
       alerting: enabled
@@ -151,14 +132,4 @@ aggregator:
       - neutron_api_check
       dimension:
         cluster_name: neutron-control
-        nagios_host: 00-top-clusters
-    neutron_compute:
-      policy: highest_severity
-      alerting: enabled_with_notification
-      match:
-        service: neutron-compute
-      members:
-      - neutron_logs_compute
-      dimension:
-        cluster_name: neutron-compute
         nagios_host: 00-top-clusters
