@@ -5,6 +5,30 @@ neutron_server_packages:
   pkg.installed:
   - names: {{ server.pkgs }}
 
+{% if server.backend.engine == "openvswitch" %}
+
+/etc/neutron/neutron.conf:
+  file.managed:
+  - source: salt://neutron/files/{{ server.version }}/neutron-server.conf.{{ grains.os_family }}
+  - template: jinja
+  - require:
+    - pkg: neutron_server_packages
+
+/etc/neutron/plugins/ml2/ml2_conf.ini
+  file.managed:
+  - source: salt://neutron/files/{{ server.version }}/ml2_conf.ini
+  - template: jinja
+  - require:
+    - pkg: neutron_server_packages
+
+neutron_server_service:
+  service.running:
+  - names: {{ server.services }}
+  - enable: true
+  - watch:
+    - file: /etc/neutron/neutron.conf
+    - file: /etc/neutron/plugins/ml2/ml2_conf.ini
+
 {% if server.backend.engine == "contrail" %}
 
 /etc/neutron/plugins/opencontrail/ContrailPlugin.ini:
