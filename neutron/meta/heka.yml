@@ -90,7 +90,6 @@ remote_collector:
   alarm:
     {%- if pillar.neutron.server is defined %}
     neutron_api_check:
-      alerting: true
       triggers:
       - neutron_api_check_failed
       dimension:
@@ -100,6 +99,7 @@ aggregator:
   alarm_cluster:
     neutron_logs_compute:
       policy: highest_severity
+      alerting: enabled
       group_by: hostname
       match:
         service: neutron-logs-compute
@@ -107,8 +107,10 @@ aggregator:
       - neutron_logs_compute
       dimension:
         service: neutron-compute
+        nagios_host: 01-service-clusters
     neutron_logs:
       policy: highest_severity
+      alerting: enabled
       group_by: hostname
       match:
         service: neutron-logs
@@ -116,8 +118,10 @@ aggregator:
       - neutron_logs
       dimension:
         service: neutron-control
+        nagios_host: 01-service-clusters
     neutron_api_endpoint:
       policy: availability_of_members
+      alerting: enabled
       group_by: hostname
       match:
         service: neutron-api-endpoint
@@ -125,16 +129,20 @@ aggregator:
       - neutron_api_endpoint
       dimension:
         service: neutron-control
+        nagios_host: 01-service-clusters
     neutron_api_check:
       policy: highest_severity
+      alerting: enabled
       match:
         service: neutron-api-check
       members:
       - neutron_api_check
       dimension:
         service: neutron-control
+        nagios_host: 01-service-clusters
     neutron_control:
       policy: highest_severity
+      alerting: enabled_with_notification
       match:
         service: neutron-control
       members:
@@ -143,11 +151,14 @@ aggregator:
       - neutron_api_check
       dimension:
         cluster_name: neutron-control
+        nagios_host: 00-top-clusters
     neutron_compute:
       policy: highest_severity
+      alerting: enabled_with_notification
       match:
         service: neutron-compute
       members:
       - neutron_logs_compute
       dimension:
         cluster_name: neutron-compute
+        nagios_host: 00-top-clusters
