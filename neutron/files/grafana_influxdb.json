@@ -9,7 +9,7 @@
         "iconSize": 13,
         "lineColor": "rgba(255, 96, 96, 0.592157)",
         "name": "Status",
-        "query": "select title,tags,text from annotations where $timeFilter and cluster = 'neutron'",
+        "query": "select title,tags,text from annotations where $timeFilter and cluster =~ /^neutron/",
         "showLine": true,
         "tagsColumn": "tags",
         "textColumn": "text",
@@ -2688,5 +2688,5 @@
   },
   "timezone": "browser",
   "title": "Neutron",
-  "version": 4
+  "version": 3
 }
