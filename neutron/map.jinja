@@ -1,11 +1,11 @@
 
 {% set compute = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ['neutron-openvswitch-agent', 'openvswitch-switch', 'openvswitch-datapath-dkms'],
+        'pkgs': ['neutron-openvswitch-agent', 'openvswitch-switch', 'openvswitch-datapath-dkms', 'python-pycadf'],
         'services': ['neutron-openvswitch-agent']
     },
     'RedHat': {
-        'pkgs': ['openstack-neutron-openvswitch', 'openvswitch'],
+        'pkgs': ['openstack-neutron-openvswitch', 'openvswitch', 'fuel-utils', 'python-pycadf'],
         'services': ['neutron-openvswitch-agent']
     },
 }, merge=pillar.neutron.get('compute', {})) %}
@@ -23,13 +23,13 @@
 
 {% set server = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ['neutron-server','neutron-lbaas-agent', 'gettext-base'],
+        'pkgs': ['neutron-server','neutron-lbaas-agent', 'gettext-base', 'python-pycadf'],
         'pkgs_ml2': ['neutron-plugin-ml2'],
         'services': ['neutron-server'],
         'notification': False
     },
     'RedHat': {
-        'pkgs_ml2': ['openstack-neutron-ml2'],
+        'pkgs_ml2': ['openstack-neutron-ml2', 'python-pycadf'],
         'pkgs': ['openstack-neutron'],
         'services': ['neutron-server'],
         'notification': False

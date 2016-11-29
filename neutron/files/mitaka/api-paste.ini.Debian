@@ -6,7 +6,7 @@ use = egg:Paste#urlmap
 [composite:neutronapi_v2_0]
 use = call:neutron.auth:pipeline_factory
 noauth = cors request_id catch_errors extensions neutronapiapp_v2_0
-keystone = cors request_id catch_errors authtoken keystonecontext extensions neutronapiapp_v2_0
+keystone = cors request_id catch_errors authtoken keystonecontext extensions {%- if server.audit is defined %} audit {%- endif %} neutronapiapp_v2_0
 
 [filter:request_id]
 paste.filter_factory = oslo_middleware:RequestId.factory
@@ -32,3 +32,9 @@ paste.app_factory = neutron.api.versions:Versions.factory
 
 [app:neutronapiapp_v2_0]
 paste.app_factory = neutron.api.v2.router:APIRouter.factory
+
+{%- if server.audit is defined %}
+[filter:audit]
+paste.filter_factory = {{ server.get("audit", {}).get("filter_factory", "keystonemiddleware.audit:filter_factory")   }}
+audit_map_file = {{ server.get("audit", {}).get("map_file", "/etc/pycadf/neutron_api_audit_map.conf")  }}
+{%- endif %}

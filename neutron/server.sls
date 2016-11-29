@@ -69,6 +69,13 @@ neutron_db_manage:
   - require:
     - pkg: neutron_server_packages
 
+/etc/neutron/api-paste.ini:
+  file.managed:
+    - source: salt://neutron/files/{{ server.version  }}/api-paste.ini.{{ grains.os_family  }}
+    - template: jinja
+    - require:
+      - pkg: neutron_server_packages
+
 {%- if grains.os_family == "Debian" %}
 
 /etc/default/neutron-server:
