@@ -49,6 +49,8 @@ Neutron Server on the controller node
           host: 127.0.0.1
           port: 8775
           password: pass
+        audit:
+          enabled: false
 
 Neutron VXLAN tenant networks with Network Nodes (with DVR for East-West
  and Network node for North-South)
@@ -165,6 +167,8 @@ Compute Node
           mechanism:
             ovs:
               driver: openvswitch
+        audit:
+          enabled: false
 
 Neutron VXLAN tenant networks with Network Nodes (non DVR)
 ==========================================================
@@ -564,6 +568,25 @@ Client-side RabbitMQ HA setup
           virtual_host: '/openstack'
         ....
 
+Enable auditing filter, ie: CADF
+
+.. code-block:: yaml
+
+    neutron:
+      server:
+        audit:
+          enabled: true
+      ....
+          filter_factory: 'keystonemiddleware.audit:filter_factory'
+          map_file: '/etc/pycadf/neutron_api_audit_map.conf'
+      ....
+      compute:
+        audit:
+          enabled: true
+      ....
+          filter_factory: 'keystonemiddleware.audit:filter_factory'
+          map_file: '/etc/pycadf/neutron_api_audit_map.conf'
+      ....
 
 
 Usage
