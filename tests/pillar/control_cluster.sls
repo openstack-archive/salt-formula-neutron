@@ -45,3 +45,7 @@ neutron:
       user: nova
       password: password
       tenant: service
+    audit:
+      filter_factory: 'keystonemiddleware.audit:filter_factory'
+      map_file: '/etc/pycadf/neutron_api_audit_map.conf'
+
