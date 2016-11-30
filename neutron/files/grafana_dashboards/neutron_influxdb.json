@@ -91,20 +91,7 @@
               "dsType": "influxdb",
               "fill": "",
               "function": "last",
-              "groupBy": [
-                {
-                  "params": [
-                    "$interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
               "groupByTags": [],
               "groupby_field": "",
               "interval": "",
@@ -1146,20 +1133,7 @@
               "column": "value",
               "dsType": "influxdb",
               "function": "mean",
-              "groupBy": [
-                {
-                  "params": [
-                    "$interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
               "groupByTags": [],
               "measurement": "haproxy_backend_servers",
               "policy": "default",
@@ -1189,11 +1163,13 @@
                 },
                 {
                   "key": "backend",
+                  "operator": "=",
                   "value": "neutron_api"
                 },
                 {
                   "condition": "AND",
                   "key": "state",
+                  "operator": "=",
                   "value": "up"
                 }
               ]
@@ -1296,20 +1272,7 @@
               "column": "value",
               "dsType": "influxdb",
               "function": "mean",
-              "groupBy": [
-                {
-                  "params": [
-                    "$interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
               "groupByTags": [],
               "measurement": "haproxy_backend_servers",
               "policy": "default",
@@ -1339,11 +1302,13 @@
                 },
                 {
                   "key": "backend",
+                  "operator": "=",
                   "value": "neutron_api"
                 },
                 {
                   "condition": "AND",
                   "key": "state",
+                  "operator": "=",
                   "value": "down"
                 }
               ]
@@ -1445,20 +1410,7 @@
               "dsType": "influxdb",
               "fill": "",
               "function": "last",
-              "groupBy": [
-                {
-                  "params": [
-                    "$interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
               "groupByTags": [],
               "measurement": "openstack_neutron_networks",
               "policy": "default",
@@ -1488,6 +1440,7 @@
                 },
                 {
                   "key": "state",
+                  "operator": "=",
                   "value": "active"
                 }
               ]
@@ -1686,20 +1639,7 @@
               "column": "value",
               "dsType": "influxdb",
               "function": "last",
-              "groupBy": [
-                {
-                  "params": [
-                    "$interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
               "groupByTags": [],
               "measurement": "openstack_neutron_subnets",
               "policy": "default",
@@ -1921,20 +1861,7 @@
               "column": "value",
               "dsType": "influxdb",
               "function": "last",
-              "groupBy": [
-                {
-                  "params": [
-                    "$interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
               "groupByTags": [],
               "measurement": "openstack_neutron_ports",
               "policy": "default",
@@ -2176,20 +2103,7 @@
               "column": "value",
               "dsType": "influxdb",
               "function": "last",
-              "groupBy": [
-                {
-                  "params": [
-                    "$interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
               "groupByTags": [],
               "measurement": "openstack_neutron_routers",
               "policy": "default",
@@ -2219,6 +2133,7 @@
                 },
                 {
                   "key": "state",
+                  "operator": "=",
                   "value": "active"
                 }
               ]
@@ -2423,20 +2338,7 @@
               "column": "value",
               "dsType": "influxdb",
               "function": "last",
-              "groupBy": [
-                {
-                  "params": [
-                    "$interval"
-                  ],
-                  "type": "time"
-                },
-                {
-                  "params": [
-                    "null"
-                  ],
-                  "type": "fill"
-                }
-              ],
+              "groupBy": [],
               "groupByTags": [],
               "measurement": "openstack_neutron_floatingips",
               "policy": "default",
@@ -2466,6 +2368,7 @@
                 },
                 {
                   "key": "state",
+                  "operator": "=",
                   "value": "associated"
                 }
               ]
@@ -2688,5 +2591,5 @@
   },
   "timezone": "browser",
   "title": "Neutron",
-  "version": 3
+  "version": 4
 }
