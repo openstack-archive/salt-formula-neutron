@@ -1181,7 +1181,12 @@ lock_path = $state_path/lock
 # messaging, messagingv2, routing, log, test, noop (multi valued)
 # Deprecated group/name - [DEFAULT]/notification_driver
 #driver =
-{%- if neutron.get('notification', False) %}
+{%- if neutron.notification is mapping %}
+driver = {{ neutron.notification.get('driver', 'messagingv2') }}
+{%- if neutron.notification.topics is defined %}
+topics = {{ neutron.notification.topics }}
+{%- endif %}
+{%- elif neutron.get('notification', False) %}
 driver = messagingv2
 {%- endif %}
 
