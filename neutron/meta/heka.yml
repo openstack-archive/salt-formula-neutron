@@ -90,7 +90,7 @@ remote_collector:
 aggregator:
   alarm_cluster:
     neutron_logs:
-      policy: highest_severity
+      policy: status_of_members
       alerting: enabled
       group_by: hostname
       match:
