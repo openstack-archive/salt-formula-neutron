@@ -1,3 +1,10 @@
+{%- from "neutron/map.jinja" import server with context %}
+{%- if server.backend.engine == "ml2" %}
+{% set neutron_agents = ('l3', 'dhcp', 'metadata', 'openvswitch') %}
+{%- else %}
+{% set neutron_agents = () %}
+{%- endif %}
+
 log_collector:
   decoder:
     neutron:
@@ -79,6 +86,67 @@ remote_collector:
         periods: 0
         function: last
     {%- endif %}
+    {%- for agent in neutron_agents %}
+    neutron_{{ agent }}_two_up:
+      description: 'Some Neutron {{ agent }} agents are down'
+      severity: warning
+      logical_operator: and
+      rules:
+      - metric: openstack_neutron_agents
+        field:
+          service: {{ agent }}
+          state: up
+        relational_operator: '>='
+        threshold: 2
+        window: 60
+        periods: 0
+        function: last
+      - metric: openstack_neutron_agents
+        field:
+          service: {{ agent }}
+          state: down
+        relational_operator: '>'
+        threshold: 0
+        window: 60
+        periods: 0
+        function: last
+    neutron_{{ agent }}_one_up:
+      description: 'Only one Neutron {{ agent }} agent is up'
+      severity: critical
+      logical_operator: and
+      rules:
+      - metric: openstack_neutron_agents
+        field:
+          service: {{ agent }}
+          state: up
+        relational_operator: '=='
+        threshold: 1
+        window: 60
+        periods: 0
+        function: last
+      - metric: openstack_neutron_agents
+        field:
+          service: {{ agent }}
+          state: '== down || == disabled'
+        relational_operator: '>'
+        threshold: 0
+        window: 60
+        periods: 0
+        function: last
+    neutron_{{ agent }}_zero_up:
+      description: 'All Neutron {{ agent }} agents are down or disabled'
+      severity: down
+      rules:
+      - metric: openstack_neutron_agents
+        field:
+          service: {{ agent }}
+          state: up
+        relational_operator: '=='
+        threshold: 0
+        window: 60
+        periods: 0
+        function: last
+    {%- endfor %}
   alarm:
     {%- if pillar.neutron.server is defined %}
     neutron_api_check:
@@ -87,6 +155,16 @@ remote_collector:
       dimension:
         service: neutron-api-check
     {%- endif %}
+    {%- for agent in neutron_agents %}
+    neutron_{{ agent }}:
+      alerting: enabled
+      triggers:
+      - neutron_{{ agent }}_zero_up
+      - neutron_{{ agent }}_one_up
+      - neutron_{{ agent }}_two_up
+      dimension:
+        service: neutron-{{ agent }}
+    {%- endfor %}
 aggregator:
   alarm_cluster:
     neutron_logs:
@@ -133,3 +211,28 @@ aggregator:
       dimension:
         cluster_name: neutron-control
         nagios_host: 00-top-clusters
+    {%- for agent in neutron_agents %}
+    neutron_{{ agent }}:
+      policy: highest_severity
+      alerting: enabled
+      match:
+        service: neutron-{{ agent }}
+      members:
+      - neutron_{{ agent }}
+      dimension:
+        service: neutron-data
+        nagios_host: 01-service-clusters
+    {%- endfor %}
+    neutron_data:
+      policy: highest_severity
+      alerting: enabled_with_notification
+      match:
+        service: neutron-data
+      members:
+    {%- for agent in neutron_agents %}
+      - neutron_{{ agent }}
+    {%- endfor %}
+      dimension:
+        cluster_name: neutron-data
+        nagios_host: 00-top-clusters
+
