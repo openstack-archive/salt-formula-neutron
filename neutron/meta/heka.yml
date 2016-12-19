@@ -1,3 +1,5 @@
+{% set neutron_agents = ('l3', 'metadata', 'openvswitch') %}
+
 log_collector:
   decoder:
     neutron:
@@ -48,6 +50,47 @@ metric_collector:
         periods: 0
         function: last
     {%- endif %}
+    {%- for agent in neutron_agents %}
+    neutron_{{ agent }}_alldown:
+      description: 'All Neutron {{ agent }} agents are down'
+      severity: down
+      rules:
+      - metric: openstack_neutron_agents
+        field:
+          service: '{{ agent }}'
+          state: 'up'
+        relational_operator: '=='
+        threshold: 0
+        window: 60
+        periods: 0
+        function: last
+    neutron_{{ agent }}_majority_down:
+      description: 'Less than 50% of Neutron {{ agent }} agents are up'
+      severity: critical
+      rules:
+      - metric: openstack_neutron_agents_percent
+        field:
+          service: '{{ agent }}'
+          state: 'up'
+        relational_operator: '<='
+        threshold: 50
+        window: 60
+        periods: 0
+        function: last
+    neutron_{{ agent }}_one_down:
+      description: 'At least one Neutron {{ agent }} agent is down'
+      severity: warning
+      rules:
+      - metric: openstack_neutron_agents
+        field:
+          service: '{{ agent }}'
+          state: 'down'
+        relational_operator: '>'
+        threshold: 0
+        window: 60
+        periods: 0
+        function: last
+    {%- enfor %}
   alarm:
     {%- if pillar.neutron.server is defined %}
     neutron_logs:
@@ -62,6 +105,16 @@ metric_collector:
       - neutron_api_local_endpoint
       dimension:
         service: neutron-api-endpoint
+    {%- for agent in neutron_agents %}
+    neutron_{{ agent }}:
+      alerting: enabled
+      triggers:
+      - neutron_{{ agent }}_alldown
+      - neutron_{{ agent }}_majority_down
+      - neutron_{{ agent }}_one_down
+      dimension:
+        service: neutron-{{ agent }}
+    {%- endfor %}
     {%- endif %}
 remote_collector:
   trigger:
@@ -133,3 +186,15 @@ aggregator:
       dimension:
         cluster_name: neutron-control
         nagios_host: 00-top-clusters
+    {%- for agent in neutron_agents %}
+    neutron_{{ agent }}:
+      policy: highest_severity
+      alerting: enabled
+      match:
+        service: neutron-{{ agent }}
+      members:
+      - neutron_{{ agent }}
+      dimension:
+        service: neutron-control
+        nagios_host: 01-service-clusters
+    {%- endfor %}
