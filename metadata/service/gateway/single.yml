@@ -1,5 +1,7 @@
 applications:
 - neutron
+classes:
+- service.neutron.support
 parameters:
   neutron:
     gateway:
