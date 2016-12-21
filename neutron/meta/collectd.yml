@@ -1,4 +1,4 @@
-{%- if pillar.neutron.server %}
+{%- if pillar.neutron.server is defined %}
 {%- from "neutron/map.jinja" import server with context %}
 {%- if server.get('enabled', False) %}
 local_plugin:
