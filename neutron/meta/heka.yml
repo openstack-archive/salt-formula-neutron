@@ -1,5 +1,5 @@
 {%- from "neutron/map.jinja" import server with context %}
-{%- if server.backend.engine == "ml2" %}
+{%- if server.get('backend', {}).engine is defined and server.backend.engine == "ml2" %}
 {% set neutron_agents = ('l3', 'dhcp', 'metadata', 'openvswitch') %}
 {%- else %}
 {% set neutron_agents = () %}
@@ -10,6 +10,11 @@ log_collector:
     neutron:
       engine: sandbox
       module_file: /usr/share/lma_collector/decoders/openstack_log.lua
+      module_dir: /usr/share/lma_collector/common;/usr/share/heka/lua_modules
+      adjust_timezone: true
+    ovs:
+      engine: sandbox
+      module_file: /usr/share/lma_collector/decoders/ovs_log.lua
       module_dir: /usr/share/lma_collector/common;/usr/share/heka/lua_modules
       adjust_timezone: true
   splitter:
@@ -25,6 +30,14 @@ log_collector:
       priority: ["^Seq"]
       decoder: "neutron_decoder"
       splitter: "neutron_splitter"
+    ovs_log:
+      engine: logstreamer
+      log_directory: "/var/log/openvswitch"
+      file_match: '(?P<Service>ovs\-vswitchd|ovsdb\-server|ovs\-ctl)\.log$'
+      differentiator: ['Service']
+      priority: ["^Seq"]
+      decoder: "ovs_decoder"
+      splitter: "TokenSplitter"
 metric_collector:
   trigger:
     neutron_logs_error:
