@@ -1,4 +1,11 @@
+{%- if pillar.neutron.get('server', {}).get('backend', {}).engine is defined and pillar.neutron.server.backend.engine == "ml2" %}
+dashboard:
+  neutron:
+    format: json
+    template: neutron/files/grafana_dashboards/neutron_openvswitch_influxdb.json
+{%- elif pillar.neutron.server is defined %}
 dashboard:
   neutron:
     format: json
     template: neutron/files/grafana_dashboards/neutron_influxdb.json
+{%- endif %}
