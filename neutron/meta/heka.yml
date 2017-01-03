@@ -25,6 +25,7 @@ log_collector:
       priority: ["^Seq"]
       decoder: "neutron_decoder"
       splitter: "neutron_splitter"
+{%- if pillar.neutron.server is defined %}
 metric_collector:
   trigger:
     neutron_logs_error:
@@ -41,7 +42,6 @@ metric_collector:
         window: 70
         periods: 0
         function: max
-    {%- if pillar.neutron.server is defined %}
     neutron_api_local_endpoint:
       description: 'Neutron API is locally down'
       severity: down
@@ -54,9 +54,7 @@ metric_collector:
         window: 60
         periods: 0
         function: last
-    {%- endif %}
   alarm:
-    {%- if pillar.neutron.server is defined %}
     neutron_logs:
       alerting: enabled
       triggers:
@@ -69,10 +67,10 @@ metric_collector:
       - neutron_api_local_endpoint
       dimension:
         service: neutron-api-endpoint
-    {%- endif %}
+{%- endif %}
+{%- if pillar.neutron.server is defined %}
 remote_collector:
   trigger:
-    {%- if pillar.neutron.server is defined %}
     neutron_api_check_failed:
       description: 'Endpoint check for neutron-api is failed'
       severity: down
@@ -85,7 +83,6 @@ remote_collector:
         window: 60
         periods: 0
         function: last
-    {%- endif %}
     {%- for agent in neutron_agents %}
     neutron_{{ agent }}_two_up:
       description: 'Some Neutron {{ agent }} agents are down'
@@ -148,13 +145,11 @@ remote_collector:
         function: last
     {%- endfor %}
   alarm:
-    {%- if pillar.neutron.server is defined %}
     neutron_api_check:
       triggers:
       - neutron_api_check_failed
       dimension:
         service: neutron-api-check
-    {%- endif %}
     {%- for agent in neutron_agents %}
     neutron_{{ agent }}:
       alerting: enabled
@@ -165,6 +160,7 @@ remote_collector:
       dimension:
         service: neutron-{{ agent }}
     {%- endfor %}
+{%- endif %}
 aggregator:
   alarm_cluster:
     neutron_logs:
