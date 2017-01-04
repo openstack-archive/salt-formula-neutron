@@ -223,6 +223,7 @@ aggregator:
         service: neutron-data
         nagios_host: 01-service-clusters
     {%- endfor %}
+{%- if neutron_agents|length > 0 %}
     neutron_data:
       policy: highest_severity
       alerting: enabled_with_notification
@@ -235,4 +236,4 @@ aggregator:
       dimension:
         cluster_name: neutron-data
         nagios_host: 00-top-clusters
-
+{%- endif %}
