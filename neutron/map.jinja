@@ -29,7 +29,7 @@
 
 {% set server = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ['neutron-server','neutron-lbaas-agent', 'gettext-base', 'python-pycadf'],
+        'pkgs': ['neutron-server', 'gettext-base', 'python-pycadf'],
         'pkgs_ml2': ['neutron-plugin-ml2'],
         'services': ['neutron-server'],
         'notification': False,
@@ -49,6 +49,11 @@
 }, merge=pillar.neutron.get('server', {})) %}
 
 {%- if pillar.neutron.server is defined %}
+
+# Mitaka (and later) deployments don't support the LBaaS plugin anymore
+{%- if server.get('version', 'mitaka') in ('liberty', 'juno', 'kilo') %}
+{%- do server.update({'pkgs': server.pkgs + ['neutron-lbaas-agent'] }) %}
+{%- endif %}
 
 {%- set tmp_server = pillar.neutron.server %}
 
