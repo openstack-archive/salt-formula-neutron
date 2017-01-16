@@ -34,6 +34,11 @@ neutron_server_service:
   - watch:
     - file: /etc/neutron/neutron.conf
 
+neutron_lbaas_service:
+  service.dead:
+  - name: neutron-lbaas-agent
+  - enable: false
+
 {%- endif %}
 
 {% if server.backend.engine == "ml2" %}
