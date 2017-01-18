@@ -2,3 +2,14 @@ dashboard:
   neutron:
     format: json
     template: neutron/files/grafana_dashboards/neutron_influxdb.json
+  Main:
+    row:
+      ost-control-plane:
+        title: OpenStack Control Plane
+        panel:
+          neutron:
+            title: Neutron
+            target:
+              cluster_status:
+                rawQuery: true
+                query: SELECT last(value) FROM cluster_status WHERE cluster_name = 'neutron' AND $timeFilter GROUP BY time($interval) fill(null)
