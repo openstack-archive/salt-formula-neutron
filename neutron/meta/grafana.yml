@@ -9,3 +9,31 @@ dashboard:
     format: json
     template: neutron/files/grafana_dashboards/neutron_influxdb.json
 {%- endif %}
+  Main:
+    row:
+      ost-control-plane:
+        title: OpenStack Control Plane
+        panel:
+          neutron:
+            title: Neutron
+            links:
+            - dashboard: Neutron
+              title: Neutron
+              type: dashboard
+            target:
+              cluster_status:
+                rawQuery: true
+                query: SELECT last(value) FROM cluster_status WHERE cluster_name = 'neutron-control' AND environment_label = '$environment' AND $timeFilter GROUP BY time($interval) fill(null)
+      ost-data-plane:
+        title: OpenStack Data Plane
+        panel:
+          neutron:
+            title: Neutron
+            links:
+            - dashboard: Neutron
+              title: Neutron
+              type: dashboard
+            target:
+              cluster_status:
+                rawQuery: true
+                query: SELECT last(value) FROM cluster_status WHERE cluster_name = 'neutron-data' AND environment_label = '$environment' AND $timeFilter GROUP BY time($interval) fill(null)
