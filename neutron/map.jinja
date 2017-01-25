@@ -54,7 +54,7 @@
 
 {%- if not tmp_server.backend is defined %}
 
-{%- if tmp_server.plugin == "contrail" %}
+{%- if pillar.opencontrail is defined and tmp_server.plugin == "contrail" %}
 
 {%- from "opencontrail/map.jinja" import config with context %}
 
